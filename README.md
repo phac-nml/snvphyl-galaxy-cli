@@ -67,6 +67,101 @@ python bin/snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fas
 
 This assumes that the fastq files have been previously uploaded to Galaxy in a history named **fastq-history** and a dataset collection has been prepared as described in the [SNVPhyl Documentation](https://snvphyl.readthedocs.org/en/latest/user/usage/#preparing-sequence-reads)
 
+# Detailed Usage
+
+```
+usage: snvphyl.py [-h] [--galaxy-url GALAXY_URL]
+                  [--galaxy-api-key GALAXY_API_KEY] [--deploy-docker]
+                  [--no-undeploy-docker] [--docker-port DOCKER_PORT]
+                  [--snvphyl-version SNVPHYL_VERSION]
+                  [--workflow-id WORKFLOW_ID]
+                  [--reference-file REFERENCE_FILE] [--output-dir OUTPUT_DIR]
+                  [--fastq-dir FASTQ_DIR]
+                  [--fastq-history-name FASTQ_HISTORY_NAME]
+                  [--invalid-positions-file INVALID_POSITIONS_FILE]
+                  [--run-name RUN_NAME]
+                  [--alternative-allele-ratio ALTERNATIVE_ALLELE_RATIO]
+                  [--min-coverage MIN_COVERAGE]
+                  [--min-mean-mapping MIN_MEAN_MAPPING]
+                  [--repeat-minimum-length REPEAT_MINIMUM_LENGTH]
+                  [--repeat-minimum-pid REPEAT_MINIMUM_PID]
+                  [--filter-density-window FILTER_DENSITY_WINDOW]
+                  [--filter-density-threshold FILTER_DENSITY_THRESHOLD]
+                  [--available-versions]
+
+Run the SNVPhyl workflow using the given Galaxy credentials and download results.
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+Galaxy API (runs SNVPhyl in external Galaxy instance):
+  --galaxy-url GALAXY_URL
+                        URL to the Galaxy instance to execute SNVPhyl
+  --galaxy-api-key GALAXY_API_KEY
+                        API key for the Galaxy instance for executing SNVPhyl
+
+Docker (runs SNVPhyl in local Docker container):
+  --deploy-docker       Deply an instance of Galaxy using Docker.
+  --no-undeploy-docker  Do not undeploy Docker instance.
+  --docker-port DOCKER_PORT
+                        Port for deployment of Docker instance [48888].
+
+SNVPhyl Versions:
+  --snvphyl-version SNVPHYL_VERSION
+                        version of SNVPhyl to execute [1.0].
+  --workflow-id WORKFLOW_ID
+                        Galaxy workflow id.  If not specified attempts to guess
+
+Input:
+  --reference-file REFERENCE_FILE
+                        Reference file (in .fasta format) to map reads to
+  --fastq-dir FASTQ_DIR
+                        Directory of fastq files (ending in .fastq, .fq, .fastq.gz, .fq.gz). 
+                        For paired-end data must be separated into files ending in _1/_2 or _R1/_R2 
+                        or _R1_001/_R2_001.
+  --fastq-history-name FASTQ_HISTORY_NAME
+                        Galaxy history name for previously uploaded collection of fastq files.
+
+Output:
+  --output-dir OUTPUT_DIR
+                        Output directory to store results
+
+Optional Parameters:
+  --invalid-positions-file INVALID_POSITIONS_FILE
+                        Tab-delimited file of positions to mask on the reference.
+  --run-name RUN_NAME   Name of run added to output files [run]
+  --alternative-allele-ratio ALTERNATIVE_ALLELE_RATIO
+                        Cutoff ratio of alleles/bases supporting a variant before it is called [0.75]
+  --min-coverage MIN_COVERAGE
+                        Minimum coverage for calling variants [15]
+  --min-mean-mapping MIN_MEAN_MAPPING
+                        Minimum mean mapping quality for reads supporting a variant [30]
+  --repeat-minimum-length REPEAT_MINIMUM_LENGTH
+                        Minimum length of repeat regions to remove [150]
+  --repeat-minimum-pid REPEAT_MINIMUM_PID
+                        Minimum percent identity to identify repeat regions [90]
+  --filter-density-window FILTER_DENSITY_WINDOW
+                        Window size for identifying high-density SNV regions [100]
+  --filter-density-threshold FILTER_DENSITY_THRESHOLD
+                        SNV threshold for identifying high-density SNV regions [10]
+
+Additional Information:
+  --available-versions  show program's version number and exit
+
+Example:
+  snvphyl.py --deploy-docker --fastq-dir fastqs/ --reference-file reference.fasta --min-coverage 5 
+      --output-dir output
+
+    Runs default SNVPhyl pipeline in a Docker contain with the given input files, setting the minimum
+    coverage for calling a SNV to be 5.
+
+  snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-history-name fastq-history 
+      --reference-file reference.fasta --output-dir output
+
+    Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, using structured 
+    fastq data (paired or single dataset collections) from a history with the given name.
+```
+
 # Legal
 
 Copyright 2012-2016 Government of Canada
