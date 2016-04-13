@@ -610,6 +610,11 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
 
     docker_id=None
 
+    if (not reference_file):
+        raise Exception("Error: must specify a --reference-file")
+    if (not output_dir):
+        raise Exception("Error: must specify an --output-dir")
+
     if (deploy_docker and (galaxy_url or galaxy_api_key)):
         raise Exception("Error: cannot specify --galaxy-url and --galaxy-api-key along with --deploy-docker")
     elif (deploy_docker):
@@ -893,6 +898,11 @@ if __name__ == '__main__':
     versions.sort()
     current_version=versions.pop()
 
+    available_versions = ""
+    for version in versions:
+        available_versions += "  "+version+"\n"
+    available_versions +="* "+current_version+"\n"
+
     parser = argparse.ArgumentParser(description='Run the SNVPhyl workflow using the given Galaxy credentials and download results.',
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="\nExample:"+
@@ -917,10 +927,10 @@ if __name__ == '__main__':
     snvphyl_version_group.add_argument('--workflow-id', action="store", dest="workflow_id", required=False, help='Galaxy workflow id.  If not specified attempts to guess')
 
     input_group = parser.add_argument_group('Input')
-    input_group.add_argument('--reference-file', action="store", dest="reference_file", required=True, help='Reference file (in .fasta format) to map reads to')
+    input_group.add_argument('--reference-file', action="store", dest="reference_file", required=False, help='Reference file (in .fasta format) to map reads to')
 
     output_group = parser.add_argument_group('Output')
-    output_group.add_argument('--output-dir', action="store", dest="output_dir", required=True, help='Output directory to store results')
+    output_group.add_argument('--output-dir', action="store", dest="output_dir", required=False, help='Output directory to store results')
 
     # Requires either this argument for direct upload of fastq files
     input_group.add_argument('--fastq-dir', action="store", dest="fastq_dir", required=False, help='Directory of fastq files (ending in .fastq, .fq, .fastq.gz, .fq.gz). For paired-end data must be separated into files ending in _1/_2 or _R1/_R2 or _R1_001/_R2_001.')
@@ -938,6 +948,9 @@ if __name__ == '__main__':
     parameter_group.add_argument('--repeat-minimum-pid', action="store", dest="repeat_minimum_pid", default=90, required=False, help='Minimum percent identity to identify repeat regions [90]')
     parameter_group.add_argument('--filter-density-window', action="store", dest="filter_density_window", default=100, required=False, help='Window size for identifying high-density SNV regions [100]')
     parameter_group.add_argument('--filter-density-threshold', action="store", dest="filter_density_threshold", default=10, required=False, help='SNV threshold for identifying high-density SNV regions [10]')
+
+    info_group = parser.add_argument_group("Additional Information")
+    info_group.add_argument('--available-versions', action="version", version=available_versions)
 
     args = parser.parse_args()
     dic = vars(args)
