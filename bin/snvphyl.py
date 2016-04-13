@@ -448,7 +448,10 @@ def verify_parameter_recursive(param,workflow_param):
         value=param[element]
         if (type(value) is dict):
             try:
-                workflow_sub_param=json.loads(workflow_param[element])
+                if (type(workflow_param[element]) is not dict):
+                    workflow_sub_param=json.loads(workflow_param[element])
+                else:
+                    workflow_sub_param=workflow_param[element]
             except:
                 parameters_same=False
 
