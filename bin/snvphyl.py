@@ -625,7 +625,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
         # Older versions of Galaxy have bugs preventing usage of 'invoke_workflow" over 'run_workflow'
         # For up to date Docker images of Galaxy, we can gurantee newer version, so use newer API methods.
         # Otherwise, use older API methods, which throws confusing exceptions but still works.
-        if float(snvphyl_version) >= 1.0:
+        if snvphyl_version != '0.2-beta-1' and float(snvphyl_version) >= 1.0:
             use_newer_galaxy_api=True
 
         if os.path.exists(output_dir):
@@ -806,8 +806,11 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     settings_fh.write("min_mean_mapping=%s\n" % min_mean_mapping)
     settings_fh.write("repeat_minimum_length=%s\n" % repeat_minimum_length)
     settings_fh.write("repeat_minimum_pid=%s\n" % repeat_minimum_pid)
-    settings_fh.write("filter_density_window=%s\n" % filter_density_window)
-    settings_fh.write("filter_density_threshold=%s\n" % filter_density_threshold)
+
+    if snvphyl_version != '0.2-beta-1' and float(snvphyl_version) >= 1.0:
+        settings_fh.write("filter_density_window=%s\n" % filter_density_window)
+        settings_fh.write("filter_density_threshold=%s\n" % filter_density_threshold)
+
     settings_fh.write("reference_file=%s\n" % reference_file)
     settings_fh.write("galaxy_url=%s\n" % galaxy_url)
     settings_fh.write("workflow_id=%s\n" % snvphyl_workflow['id'])
@@ -903,8 +906,8 @@ if __name__ == '__main__':
 
     available_versions = ""
     for version in versions:
-        available_versions += "  "+version+"\n"
-    available_versions +="* "+current_version+"\n"
+        available_versions += version+"\n"
+    available_versions +=current_version+" [default]\n"
 
     parser = argparse.ArgumentParser(description='Run the SNVPhyl workflow using the given Galaxy credentials and download results.',
         formatter_class=argparse.RawTextHelpFormatter,
