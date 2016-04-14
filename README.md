@@ -186,3 +186,4 @@ specific language governing permissions and limitations under the License.
 [Docker Install]: https://docs.docker.com/installation/
 [Galaxy Docker]: https://github.com/bgruening/docker-galaxy-stable/
 [SNVPhyl Output]: http://snvphyl.readthedocs.org/en/latest/user/output/
+[SNVPhyl Galaxy]: http://snvphyl.readthedocs.org/en/latest/install/galaxy/#import-snvphyl-galaxy-workflows
