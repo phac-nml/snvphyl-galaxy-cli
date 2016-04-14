@@ -47,7 +47,7 @@ Undeploying and cleaning up Docker Container
 =============================================
 Running 'docker rm -f -v c28e98ca56423f1087714673e0d4a0175e36b250107c530a2996e92cbee3fc65'
 ```
-Following execution the Docker container will be stopped and deleted.  If you wish to keep the Docker container around please pass `--keep-docker`.  SNVPhyl will remain running within Docker, and can be accessed by logging into <http://localhost:48888> by default with username **admin@galaxy.org** and password **admin**.
+Following execution the Docker container will be stopped and deleted.  If you wish to keep the Docker container around please pass `--keep-docker`.  SNVPhyl will remain running within Docker, and can be accessed by logging into <http://localhost:48888> with username **admin@galaxy.org** and password **admin**.
 
 The output files will be available in the directory `output1/` on completion.  Please see the [SNVPhyl Output][] documentation for details on these files.  Additionally, provenance information from Galaxy, as well as a file listing all parameter settings `run-settings.txt` is provided.
 
