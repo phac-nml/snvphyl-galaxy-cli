@@ -22,6 +22,8 @@ curl -sSL https://get.docker.com/ | sh
 sudo usermod -a -G docker `whoami`
 ```
 
+Please see the [Docker Install][] guide for more details.
+
 # Usage
 
 ## Docker
@@ -181,5 +183,6 @@ specific language governing permissions and limitations under the License.
 [Python]: https://www.python.org/
 [Galaxy]: https://galaxyproject.org/
 [Docker]: https://www.docker.com/
+[Docker Install]: https://docs.docker.com/installation/
 [Galaxy Docker]: https://github.com/bgruening/docker-galaxy-stable/
 [SNVPhyl Output]: http://snvphyl.readthedocs.org/en/latest/user/output/
