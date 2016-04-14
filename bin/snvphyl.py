@@ -599,7 +599,7 @@ def undeploy_docker_with_id(docker_id):
     print "Running '"+" ".join(docker_command_line)+"'"
     subprocess.call(docker_command_line)
 
-def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, undeploy_docker, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
+def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
 	repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method, wrapping around 'main_galaxy' to start up a docker image if needed.
@@ -641,7 +641,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
             main_galaxy(url, key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
                 repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir)
         finally:
-            if (undeploy_docker):
+            if (not keep_deployed_docker):
                 undeploy_docker_with_id(docker_id)
             else:
                 print "Not undeploying docker.  Container id="+docker_id+", running on http://localhost:"+str(docker_port)+", with user=admin@galaxy.org, password=admin"
@@ -925,7 +925,7 @@ if __name__ == '__main__':
     # Or this argument to deply a particular Galaxy instance with Docker on the given port
     docker_group = parser.add_argument_group('Docker (runs SNVPhyl in local Docker container)')
     docker_group.add_argument('--deploy-docker', action="store_true", dest="deploy_docker", required=False, help='Deply an instance of Galaxy using Docker.')
-    docker_group.add_argument('--no-undeploy-docker', action="store_false", dest="undeploy_docker", required=False, help='Do not undeploy Docker instance.')
+    docker_group.add_argument('--keep-docker', action="store_true", dest="keep_deployed_docker", required=False, help='Keep docker image running after pipeline finishes.')
     docker_group.add_argument('--docker-port', action="store", dest="docker_port", default=48888, required=False, help='Port for deployment of Docker instance [48888].')
 
     snvphyl_version_group = parser.add_argument_group('SNVPhyl Versions')

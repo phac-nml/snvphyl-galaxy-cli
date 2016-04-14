@@ -45,7 +45,7 @@ Undeploying and cleaning up Docker Container
 =============================================
 Running 'docker rm -f -v c28e98ca56423f1087714673e0d4a0175e36b250107c530a2996e92cbee3fc65'
 ```
-Following execution the Docker container will be stopped and deleted.  If you wish to keep the Docker container around please pass `--no-undeploy-docker`.  SNVPhyl will remain running within Docker, and can be accessed by logging into <http://localhost:48888> by default with username **admin@galaxy.org** and password **admin**.
+Following execution the Docker container will be stopped and deleted.  If you wish to keep the Docker container around please pass `--keep-docker`.  SNVPhyl will remain running within Docker, and can be accessed by logging into <http://localhost:48888> by default with username **admin@galaxy.org** and password **admin**.
 
 The output files will be available in the directory `output1/` on completion.  Please see the [SNVPhyl Output][] documentation for details on these files.  Additionally, provenance information from Galaxy, as well as a file listing all parameter settings `run-settings.txt` is provided.
 
@@ -72,7 +72,7 @@ This assumes that the fastq files have been previously uploaded to Galaxy in a h
 ```
 usage: snvphyl.py [-h] [--galaxy-url GALAXY_URL]
                   [--galaxy-api-key GALAXY_API_KEY] [--deploy-docker]
-                  [--no-undeploy-docker] [--docker-port DOCKER_PORT]
+                  [--keep-docker] [--docker-port DOCKER_PORT]
                   [--snvphyl-version SNVPHYL_VERSION]
                   [--workflow-id WORKFLOW_ID]
                   [--reference-file REFERENCE_FILE] [--output-dir OUTPUT_DIR]
@@ -102,7 +102,7 @@ Galaxy API (runs SNVPhyl in external Galaxy instance):
 
 Docker (runs SNVPhyl in local Docker container):
   --deploy-docker       Deply an instance of Galaxy using Docker.
-  --no-undeploy-docker  Do not undeploy Docker instance.
+  --keep-docker         Keep docker image running after pipeline finishes.
   --docker-port DOCKER_PORT
                         Port for deployment of Docker instance [48888].
 
