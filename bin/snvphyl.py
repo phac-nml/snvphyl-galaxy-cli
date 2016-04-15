@@ -876,8 +876,13 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     dataset_prov_fh=open(dataset_provenance_file,'w')
     all_datasets=gi.histories.show_history(history_id,details='all',contents=True)
     for dataset in all_datasets:
-       file_dataset_provenance=gi.histories.show_dataset_provenance(history_id,dataset['id'],follow=True)
-       dataset_prov_fh.write(json.dumps(file_dataset_provenance,indent=4,separators=(',', ': ')))
+        if (dataset['history_content_type'] == 'dataset'):
+            file_dataset_provenance=gi.histories.show_dataset_provenance(history_id,dataset['id'],follow=True)
+        elif (dataset['history_content_type'] == 'dataset_collection'):
+            file_dataset_provenance=gi.histories.show_dataset_collection(history_id,dataset['id'])
+        else:
+            raise Exception("Error: dataset with id="+dataset['id']+" in history="+history_id+" has history_content_type="+dataset['history_content_type']+". Expected one of 'dataset' or 'dataset_collection'")
+        dataset_prov_fh.write(json.dumps(file_dataset_provenance,indent=4,separators=(',', ': ')))
     histories_prov_fh.write(json.dumps(all_datasets,indent=4,separators=(',', ': ')))
 
     histories_prov_fh.close()
