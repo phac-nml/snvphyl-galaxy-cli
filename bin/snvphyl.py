@@ -875,9 +875,15 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     histories_prov_fh=open(histories_provenance_file,'w')
     dataset_prov_fh=open(dataset_provenance_file,'w')
     all_datasets=gi.histories.show_history(history_id,details='all',contents=True)
+    dataset_content=[]
     for dataset in all_datasets:
-       file_dataset_provenance=gi.histories.show_dataset_provenance(history_id,dataset['id'],follow=True)
-       dataset_prov_fh.write(json.dumps(file_dataset_provenance,indent=4,separators=(',', ': ')))
+        if (dataset['history_content_type'] == 'dataset'):
+            dataset_content.append(gi.histories.show_dataset_provenance(history_id,dataset['id'],follow=True))
+        elif (dataset['history_content_type'] == 'dataset_collection'):
+            dataset_content.append(gi.histories.show_dataset_collection(history_id,dataset['id']))
+        else:
+            raise Exception("Error: dataset with id="+dataset['id']+" in history="+history_id+" has history_content_type="+dataset['history_content_type']+". Expected one of 'dataset' or 'dataset_collection'")
+    dataset_prov_fh.write(json.dumps(dataset_content,indent=4,separators=(',', ': ')))
     histories_prov_fh.write(json.dumps(all_datasets,indent=4,separators=(',', ': ')))
 
     histories_prov_fh.close()
@@ -914,6 +920,8 @@ if __name__ == '__main__':
         epilog="\nExample:"+
                "\n  "+sys.argv[0]+" --deploy-docker --fastq-dir fastqs/ --reference-file reference.fasta --min-coverage 5 --output-dir output\n"+
                "\n    Runs default SNVPhyl pipeline in a Docker contain with the given input files, setting the minimum coverage for calling a SNV to be 5.\n\n"+
+               "\n  "+sys.argv[0]+" --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-dir fastqs/ --reference-file reference.fasta --output-dir output\n"+
+               "\n   Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, and by uploading the passed fastq files and reference genome (assumes workflow has been uploaded ahead of time).\n"+
                "\n  "+sys.argv[0]+" --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-history-name fastq-history --reference-file reference.fasta --output-dir output\n"+
                "\n    Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, using structured fastq data (paired or single dataset collections) from a history with the given name.\n\n")
     
@@ -957,6 +965,11 @@ if __name__ == '__main__':
 
     info_group = parser.add_argument_group("Additional Information")
     info_group.add_argument('--available-versions', action="version", version=available_versions)
+
+    # print help with no arguments
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit(1)
 
     args = parser.parse_args()
     dic = vars(args)
