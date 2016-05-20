@@ -166,7 +166,7 @@ Example:
        --reference-file reference.fasta --output-dir output
 
    Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, and by uploading the 
-   passed fastq files and reference genome.
+   passed fastq files and reference genome (assumes workflow has been uploaded ahead of time).
 
   snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-history-name fastq-history 
       --reference-file reference.fasta --output-dir output
