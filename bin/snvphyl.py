@@ -920,6 +920,8 @@ if __name__ == '__main__':
         epilog="\nExample:"+
                "\n  "+sys.argv[0]+" --deploy-docker --fastq-dir fastqs/ --reference-file reference.fasta --min-coverage 5 --output-dir output\n"+
                "\n    Runs default SNVPhyl pipeline in a Docker contain with the given input files, setting the minimum coverage for calling a SNV to be 5.\n\n"+
+               "\n  "+sys.argv[0]+" --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-dir fastqs/ --reference-file reference.fasta --output-dir output\n"+
+               "\n   Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, and by uploading the passed fastq files and reference genome.\n"+
                "\n  "+sys.argv[0]+" --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-history-name fastq-history --reference-file reference.fasta --output-dir output\n"+
                "\n    Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, using structured fastq data (paired or single dataset collections) from a history with the given name.\n\n")
     
@@ -963,6 +965,11 @@ if __name__ == '__main__':
 
     info_group = parser.add_argument_group("Additional Information")
     info_group.add_argument('--available-versions', action="version", version=available_versions)
+
+    # print help with no arguments
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit(1)
 
     args = parser.parse_args()
     dic = vars(args)
