@@ -11,7 +11,7 @@ git clone https://github.com/phac-nml/snvphyl-galaxy-cli.git
 sudo pip install -r snvphyl-galaxy-cli/requirements.txt
 ```
 
-**Note: You may have to install additional Linux build tools and development libraries (e.g. `sudo apt-get install build-essential curl m4 ruby texinfo libbz2-dev libcurl4-openssl-dev libexpat-dev libncurses-dev zlib1g-dev`) for some Python modules to successfully install.
+**Note: You may have to install additional Linux build tools and development libraries (e.g. `libyaml`) for some Python modules to successfully install.**
 
 In addition, to execute a local Docker instance of the pipeline, Docker must be installed and setup to enable sudo-less execution of `docker`.  This can be accomplished with:
 
