@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <snvphylWorkflows>
-	<snvphylWorkflow version="1.0" type="single-end-invalid-positions" uuid="c0e4f8c5-8a47-4a22-a42c-5256fd30526b" dockerContainer="csieffert/snvphyl-galaxy-1.0">
+	<snvphylWorkflow version="1.0" type="single-end-invalid-positions" uuid="c0e4f8c5-8a47-4a22-a42c-5256fd30526b" dockerContainer="apetkau/snvphyl-galaxy-1.0">
 		<inputs>
 			<sequenceReadsSingle>sequence_reads_single</sequenceReadsSingle>
 			<invalidPositions>invalid_positions</invalidPositions>
@@ -55,7 +55,7 @@
 			<output name="core" fileName="vcf2core.tsv" />
 		</outputs>
 	</snvphylWorkflow>
-	<snvphylWorkflow version="1.0" type="single-end" uuid="fbfb9d9e-9ab4-418a-a518-5ff58e12e4e8" dockerContainer="csieffert/snvphyl-galaxy-1.0">
+	<snvphylWorkflow version="1.0" type="single-end" uuid="fbfb9d9e-9ab4-418a-a518-5ff58e12e4e8" dockerContainer="apetkau/snvphyl-galaxy-1.0">
 		<inputs>
 			<sequenceReadsSingle>sequence_reads_single</sequenceReadsSingle>
 			<reference>reference</reference>
@@ -109,7 +109,7 @@
 			<output name="core" fileName="vcf2core.tsv" />
 		</outputs>
 	</snvphylWorkflow>
-	<snvphylWorkflow version="1.0" type="paired-end-invalid-positions" uuid="d34806e3-e3ea-4909-a73d-eca702105a5f" dockerContainer="csieffert/snvphyl-galaxy-1.0">
+	<snvphylWorkflow version="1.0" type="paired-end-invalid-positions" uuid="d34806e3-e3ea-4909-a73d-eca702105a5f" dockerContainer="apetkau/snvphyl-galaxy-1.0">
 		<inputs>
 			<sequenceReadsPaired>sequence_reads_paired</sequenceReadsPaired>
 			<invalidPositions>invalid_positions</invalidPositions>
@@ -164,7 +164,7 @@
 			<output name="core" fileName="vcf2core.tsv" />
 		</outputs>
 	</snvphylWorkflow>
-	<snvphylWorkflow version="1.0" type="paired-end" uuid="1122afdd-99c8-4177-82ee-519d2c6b59d7" dockerContainer="csieffert/snvphyl-galaxy-1.0">
+	<snvphylWorkflow version="1.0" type="paired-end" uuid="1122afdd-99c8-4177-82ee-519d2c6b59d7" dockerContainer="apetkau/snvphyl-galaxy-1.0">
 		<inputs>
 			<sequenceReadsPaired>sequence_reads_paired</sequenceReadsPaired>
 			<reference>reference</reference>
