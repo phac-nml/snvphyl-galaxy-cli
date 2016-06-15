@@ -17,7 +17,7 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="mean_mapping" />
 			</parameter>
-			<parameter name="minimum-read-coverage" defaultValue="15">
+			<parameter name="minimum-read-coverage" defaultValue="10">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="coverage" />
@@ -35,12 +35,12 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.7.0"
 					parameterName="pid" />
 			</parameter>
-			<parameter name="filter-density-window-size" defaultValue="100">
+			<parameter name="filter-density-window-size" defaultValue="20">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="use_density_filter.window_size" />
 			</parameter>
-			<parameter name="filter-density-threshold" defaultValue="10">
+			<parameter name="filter-density-threshold" defaultValue="2">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="use_density_filter.threshold" />
@@ -71,7 +71,7 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="mean_mapping" />
 			</parameter>
-			<parameter name="minimum-read-coverage" defaultValue="15">
+			<parameter name="minimum-read-coverage" defaultValue="10">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="coverage" />
@@ -89,12 +89,12 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.7.0"
 					parameterName="pid" />
 			</parameter>
-			<parameter name="filter-density-window-size" defaultValue="100">
+			<parameter name="filter-density-window-size" defaultValue="20">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="use_density_filter.window_size" />
 			</parameter>
-			<parameter name="filter-density-threshold" defaultValue="10">
+			<parameter name="filter-density-threshold" defaultValue="2">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="use_density_filter.threshold" />
@@ -126,7 +126,7 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="mean_mapping" />
 			</parameter>
-			<parameter name="minimum-read-coverage" defaultValue="15">
+			<parameter name="minimum-read-coverage" defaultValue="10">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="coverage" />
@@ -144,12 +144,12 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.7.0"
 					parameterName="pid" />
 			</parameter>
-			<parameter name="filter-density-window-size" defaultValue="100">
+			<parameter name="filter-density-window-size" defaultValue="20">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="use_density_filter.window_size" />
 			</parameter>
-			<parameter name="filter-density-threshold" defaultValue="10">
+			<parameter name="filter-density-threshold" defaultValue="2">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="use_density_filter.threshold" />
@@ -180,7 +180,7 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="mean_mapping" />
 			</parameter>
-			<parameter name="minimum-read-coverage" defaultValue="15">
+			<parameter name="minimum-read-coverage" defaultValue="10">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="coverage" />
@@ -198,12 +198,12 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.7.0"
 					parameterName="pid" />
 			</parameter>
-			<parameter name="filter-density-window-size" defaultValue="100">
+			<parameter name="filter-density-window-size" defaultValue="20">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="use_density_filter.window_size" />
 			</parameter>
-			<parameter name="filter-density-threshold" defaultValue="10">
+			<parameter name="filter-density-threshold" defaultValue="2">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="use_density_filter.threshold" />
@@ -235,7 +235,7 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/vcf2pseudoalignment/vcf2pseudoalignment/1.5.0"
 					parameterName="mean_mapping" />
 			</parameter>
-			<parameter name="minimum-read-coverage" defaultValue="15">
+			<parameter name="minimum-read-coverage" defaultValue="10">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/vcf2pseudoalignment/vcf2pseudoalignment/1.5.0"
 					parameterName="coverage" />
@@ -280,7 +280,7 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/vcf2pseudoalignment/vcf2pseudoalignment/1.5.0"
 					parameterName="mean_mapping" />
 			</parameter>
-			<parameter name="minimum-read-coverage" defaultValue="15">
+			<parameter name="minimum-read-coverage" defaultValue="10">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/vcf2pseudoalignment/vcf2pseudoalignment/1.5.0"
 					parameterName="coverage" />
@@ -353,7 +353,7 @@
 						toolId="irida.corefacility.ca/galaxy-shed/repos/nml/freebayes/freebayes/0.0.4"
 						parameterName="options_type.section_input_filters_type.quality_filter_type.min_base_quality" />
 			</parameter>
-			<parameter name="minimum-read-coverage" defaultValue="15">
+			<parameter name="minimum-read-coverage" defaultValue="10">
 				<toolParameter
 						toolId="irida.corefacility.ca/galaxy-shed/repos/nml/freebayes/freebayes/0.0.4"
 						parameterName="options_type.section_input_filters_type.min_coverage" />
@@ -420,7 +420,7 @@
 						toolId="irida.corefacility.ca/galaxy-shed/repos/nml/freebayes/freebayes/0.0.4"
 						parameterName="options_type.section_input_filters_type.quality_filter_type.min_base_quality" />
 			</parameter>
-			<parameter name="minimum-read-coverage" defaultValue="15">
+			<parameter name="minimum-read-coverage" defaultValue="10">
 				<toolParameter
 						toolId="irida.corefacility.ca/galaxy-shed/repos/nml/freebayes/freebayes/0.0.4"
 						parameterName="options_type.section_input_filters_type.min_coverage" />
