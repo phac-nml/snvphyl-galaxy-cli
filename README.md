@@ -140,7 +140,7 @@ Optional Parameters:
   --alternative-allele-ratio ALTERNATIVE_ALLELE_RATIO
                         Cutoff ratio of alleles/bases supporting a variant before it is called [0.75]
   --min-coverage MIN_COVERAGE
-                        Minimum coverage for calling variants [15]
+                        Minimum coverage for calling variants [10]
   --min-mean-mapping MIN_MEAN_MAPPING
                         Minimum mean mapping quality for reads supporting a variant [30]
   --repeat-minimum-length REPEAT_MINIMUM_LENGTH
@@ -148,9 +148,9 @@ Optional Parameters:
   --repeat-minimum-pid REPEAT_MINIMUM_PID
                         Minimum percent identity to identify repeat regions [90]
   --filter-density-window FILTER_DENSITY_WINDOW
-                        Window size for identifying high-density SNV regions [100]
+                        Window size for identifying high-density SNV regions [20]
   --filter-density-threshold FILTER_DENSITY_THRESHOLD
-                        SNV threshold for identifying high-density SNV regions [10]
+                        SNV threshold for identifying high-density SNV regions [2]
 
 Additional Information:
   --available-versions  show program's version number and exit
