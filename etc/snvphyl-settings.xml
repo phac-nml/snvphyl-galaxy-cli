@@ -50,6 +50,7 @@
 			<output name="filter-stats" fileName="filterStats.txt" />
 			<output name="mapping-quality" fileName="mappingQuality.txt" />
 			<output name="tree" fileName="phylogeneticTree.newick" />
+			<output name="alignment" fileName="snvAlignment.phy" />
 			<output name="matrix" fileName="snvMatrix.tsv" />
 			<output name="table" fileName="snvTable.tsv" />
 			<output name="core" fileName="vcf2core.tsv" />
@@ -104,6 +105,7 @@
 			<output name="filter-stats" fileName="filterStats.txt" />
 			<output name="mapping-quality" fileName="mappingQuality.txt" />
 			<output name="tree" fileName="phylogeneticTree.newick" />
+			<output name="alignment" fileName="snvAlignment.phy" />
 			<output name="matrix" fileName="snvMatrix.tsv" />
 			<output name="table" fileName="snvTable.tsv" />
 			<output name="core" fileName="vcf2core.tsv" />
@@ -159,6 +161,7 @@
 			<output name="filter-stats" fileName="filterStats.txt" />
 			<output name="mapping-quality" fileName="mappingQuality.txt" />
 			<output name="tree" fileName="phylogeneticTree.newick" />
+			<output name="alignment" fileName="snvAlignment.phy" />
 			<output name="matrix" fileName="snvMatrix.tsv" />
 			<output name="table" fileName="snvTable.tsv" />
 			<output name="core" fileName="vcf2core.tsv" />
@@ -213,6 +216,7 @@
 			<output name="filter-stats" fileName="filterStats.txt" />
 			<output name="mapping-quality" fileName="mappingQuality.txt" />
 			<output name="tree" fileName="phylogeneticTree.newick" />
+			<output name="alignment" fileName="snvAlignment.phy" />
 			<output name="matrix" fileName="snvMatrix.tsv" />
 			<output name="table" fileName="snvTable.tsv" />
 			<output name="core" fileName="vcf2core.tsv" />
