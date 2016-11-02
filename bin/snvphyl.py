@@ -599,7 +599,7 @@ def undeploy_docker_with_id(docker_id):
     print "Running '"+" ".join(docker_command_line)+"'"
     subprocess.call(docker_command_line)
 
-def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
+def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, snv_abundance_ratio, min_coverage, min_mean_mapping,
 	repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method, wrapping around 'main_galaxy' to start up a docker image if needed.
@@ -638,7 +638,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
         print "Took %0.2f minutes to deploy docker" % ((time.time()-docker_begin_time)/60)
 
         try:
-            main_galaxy(url, key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
+            main_galaxy(url, key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, snv_abundance_ratio, min_coverage, min_mean_mapping,
                 repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir)
         finally:
             if (not keep_deployed_docker):
@@ -652,13 +652,13 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
         else:
             os.mkdir(output_dir)
 
-        main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
+        main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, snv_abundance_ratio, min_coverage, min_mean_mapping,
             repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir)
     else:
         raise Exception("Error: must specify both --galaxy-url and --galaxy-api-key or --deploy-docker")
 
 
-def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
+def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, snv_abundance_ratio, min_coverage, min_mean_mapping,
 	repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method to interact with Galaxy and execute SNVPhyl.
@@ -707,7 +707,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
 
     print "\nSet up workflow input"
     print "====================="
-    set_parameter_value(workflow_settings,workflow_parameters,'alternative-allele-fraction',alternative_allele_ratio)
+    set_parameter_value(workflow_settings,workflow_parameters,'alternative-allele-fraction',snv_abundance_ratio)
     set_parameter_value(workflow_settings,workflow_parameters,'minimum-read-coverage',min_coverage)
     set_parameter_value(workflow_settings,workflow_parameters,'minimum-mean-mapping-quality',min_mean_mapping)
     set_parameter_value(workflow_settings,workflow_parameters,'repeat-minimum-length',repeat_minimum_length)
@@ -801,7 +801,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
         settings_fh.write("invalid_positions_file=%s\n" % invalid_positions_file)
 
     settings_fh.write("run_name=%s\n" % run_name)
-    settings_fh.write("alternative_allele_ratio=%s\n" % alternative_allele_ratio)
+    settings_fh.write("snv_abundance_ratio=%s\n" % snv_abundance_ratio)
     settings_fh.write("min_coverage=%s\n" % min_coverage)
     settings_fh.write("min_mean_mapping=%s\n" % min_mean_mapping)
     settings_fh.write("repeat_minimum_length=%s\n" % repeat_minimum_length)
@@ -955,7 +955,7 @@ if __name__ == '__main__':
     parameter_group = parser.add_argument_group("Optional Parameters")
     parameter_group.add_argument('--invalid-positions-file', action="store", dest="invalid_positions_file", required=False, help='Tab-delimited file of positions to mask on the reference.')
     parameter_group.add_argument('--run-name', action="store", dest="run_name", default="run", required=False, help='Name of run added to output files [run]')
-    parameter_group.add_argument('--alternative-allele-ratio', action="store", dest="alternative_allele_ratio", default=0.75, required=False, help='Cutoff ratio of alleles/bases supporting a variant before it is called [0.75]')
+    parameter_group.add_argument('--snv-abundance-ratio', action="store", dest="snv_abundance_ratio", default=0.75, required=False, help='Cutoff ratio of base coverage supporting a high quality variant to total coverage [0.75]')
     parameter_group.add_argument('--min-coverage', action="store", dest="min_coverage", default=10, required=False, help='Minimum coverage for calling variants [10]')
     parameter_group.add_argument('--min-mean-mapping', action="store", dest="min_mean_mapping", default=30, required=False, help='Minimum mean mapping quality for reads supporting a variant [30]')
     parameter_group.add_argument('--repeat-minimum-length', action="store", dest="repeat_minimum_length", default=150, required=False, help='Minimum length of repeat regions to remove [150]')
