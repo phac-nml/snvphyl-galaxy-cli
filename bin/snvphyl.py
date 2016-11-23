@@ -626,7 +626,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
         # Older versions of Galaxy have bugs preventing usage of 'invoke_workflow" over 'run_workflow'
         # For up to date Docker images of Galaxy, we can gurantee newer version, so use newer API methods.
         # Otherwise, use older API methods, which throws confusing exceptions but still works.
-        if snvphyl_version != '0.2-beta-1' and LooseVersion(snvphyl_version) >= LooseVersion('1.0'):
+        if LooseVersion(snvphyl_version) >= LooseVersion('1.0'):
             use_newer_galaxy_api=True
 
         if os.path.exists(output_dir):
@@ -808,7 +808,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     settings_fh.write("repeat_minimum_length=%s\n" % repeat_minimum_length)
     settings_fh.write("repeat_minimum_pid=%s\n" % repeat_minimum_pid)
 
-    if snvphyl_version != '0.2-beta-1' and LooseVersion(snvphyl_version) >= LooseVersion('1.0'):
+    if LooseVersion(snvphyl_version) >= LooseVersion('1.0'):
         settings_fh.write("filter_density_window=%s\n" % filter_density_window)
         settings_fh.write("filter_density_threshold=%s\n" % filter_density_threshold)
 
