@@ -2,6 +2,7 @@
 import argparse, sys, os, traceback, sys, string, json, datetime, time, subprocess
 import urllib2
 from socket import error as SocketError
+from distutils.version import LooseVersion
 import errno
 import pprint
 import xml.etree.ElementTree
@@ -625,7 +626,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
         # Older versions of Galaxy have bugs preventing usage of 'invoke_workflow" over 'run_workflow'
         # For up to date Docker images of Galaxy, we can gurantee newer version, so use newer API methods.
         # Otherwise, use older API methods, which throws confusing exceptions but still works.
-        if snvphyl_version != '0.2-beta-1' and float(snvphyl_version) >= 1.0:
+        if snvphyl_version != '0.2-beta-1' and LooseVersion(snvphyl_version) >= LooseVersion('1.0'):
             use_newer_galaxy_api=True
 
         if os.path.exists(output_dir):
@@ -707,7 +708,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
 
     print "\nSet up workflow input"
     print "====================="
-    set_parameter_value(workflow_settings,workflow_parameters,'alternative-allele-fraction',snv_abundance_ratio)
+    set_parameter_value(workflow_settings,workflow_parameters,'snv-abundance-ratio',snv_abundance_ratio)
     set_parameter_value(workflow_settings,workflow_parameters,'minimum-read-coverage',min_coverage)
     set_parameter_value(workflow_settings,workflow_parameters,'minimum-mean-mapping-quality',min_mean_mapping)
     set_parameter_value(workflow_settings,workflow_parameters,'repeat-minimum-length',repeat_minimum_length)
@@ -807,7 +808,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     settings_fh.write("repeat_minimum_length=%s\n" % repeat_minimum_length)
     settings_fh.write("repeat_minimum_pid=%s\n" % repeat_minimum_pid)
 
-    if snvphyl_version != '0.2-beta-1' and float(snvphyl_version) >= 1.0:
+    if snvphyl_version != '0.2-beta-1' and LooseVersion(snvphyl_version) >= LooseVersion('1.0'):
         settings_fh.write("filter_density_window=%s\n" % filter_density_window)
         settings_fh.write("filter_density_threshold=%s\n" % filter_density_threshold)
 
@@ -907,7 +908,7 @@ if __name__ == '__main__':
     settings_file=get_script_path()+"/../etc/snvphyl-settings.xml"
     snvphyl_version_settings=get_all_snvphyl_versions(settings_file)
     versions=snvphyl_version_settings.keys()
-    versions.sort()
+    versions.sort(key=LooseVersion)
     current_version=versions.pop()
 
     available_versions = ""
