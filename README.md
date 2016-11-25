@@ -22,8 +22,10 @@ curl -sSL https://get.docker.com/ | sh
 # Start Docker service if not already started
 sudo service docker start
 
-# Add current user `whoami` to group docker for sudo-less execution of docker.
+# (Optional) Add current user to group docker for sudo-less execution of docker.
 # You will likely have to logout/login again to refresh groups.
+# If this is not run, the `docker` command will require `sudo` access, meaning you need to
+# run SNVPhyl with `snvphyl.py --with-docker-sudo`.
 sudo usermod -a -G docker `whoami`
 ```
 
@@ -87,7 +89,7 @@ usage: snvphyl.py [-h] [--galaxy-url GALAXY_URL]
                   [--fastq-history-name FASTQ_HISTORY_NAME]
                   [--invalid-positions-file INVALID_POSITIONS_FILE]
                   [--run-name RUN_NAME]
-                  [--snv-abundance-ratio SNV_ABUNDANCE_RATIO]
+                  [--alternative-allele-ratio ALTERNATIVE_ALLELE_RATIO]
                   [--min-coverage MIN_COVERAGE]
                   [--min-mean-mapping MIN_MEAN_MAPPING]
                   [--repeat-minimum-length REPEAT_MINIMUM_LENGTH]
@@ -116,7 +118,7 @@ Docker (runs SNVPhyl in local Docker container):
 
 SNVPhyl Versions:
   --snvphyl-version SNVPHYL_VERSION
-                        version of SNVPhyl to execute [1.0.1].
+                        version of SNVPhyl to execute [1.0].
   --workflow-id WORKFLOW_ID
                         Galaxy workflow id.  If not specified attempts to guess
 
@@ -125,11 +127,11 @@ Input:
                         Reference file (in .fasta format) to map reads to
   --fastq-dir FASTQ_DIR
                         Directory of fastq files (ending in .fastq, .fq, .fastq.gz,
-			.fq.gz). For paired-end data must be separated into files ending
-			in _1/_2 or _R1/_R2 or _R1_001/_R2_001.
+                        .fq.gz). For paired-end data must be separated into files ending
+                        in _1/_2 or _R1/_R2 or _R1_001/_R2_001.
   --fastq-history-name FASTQ_HISTORY_NAME
                         Galaxy history name for previously uploaded collection 
-			of fastq files.
+                        of fastq files.
 
 Output:
   --output-dir OUTPUT_DIR
@@ -139,14 +141,13 @@ Optional Parameters:
   --invalid-positions-file INVALID_POSITIONS_FILE
                         Tab-delimited file of positions to mask on the reference.
   --run-name RUN_NAME   Name of run added to output files [run]
-  --snv-abundance-ratio SNV_ABUNDANCE_RATIO
-                        Cutoff ratio of base coverage supporting a high quality 
-			variant to total coverage [0.75]
+  --alternative-allele-ratio ALTERNATIVE_ALLELE_RATIO
+                        Cutoff ratio of alleles/bases supporting a variant before it is called [0.75]
   --min-coverage MIN_COVERAGE
                         Minimum coverage for calling variants [10]
   --min-mean-mapping MIN_MEAN_MAPPING
                         Minimum mean mapping quality for reads supporting a 
-			variant [30]
+                        variant [30]
   --repeat-minimum-length REPEAT_MINIMUM_LENGTH
                         Minimum length of repeat regions to remove [150]
   --repeat-minimum-pid REPEAT_MINIMUM_PID
