@@ -963,7 +963,7 @@ if __name__ == '__main__':
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="\nExample:"+
                "\n  "+sys.argv[0]+" --deploy-docker --fastq-dir fastqs/ --reference-file reference.fasta --min-coverage 5 --output-dir output\n"+
-               "\n    Runs default SNVPhyl pipeline in a Docker contain with the given input files, setting the minimum coverage for calling a SNV to be 5.\n\n"+
+               "\n    Runs default SNVPhyl pipeline in a Docker container with the given input files, setting the minimum coverage for calling a SNV to be 5.\n\n"+
                "\n  "+sys.argv[0]+" --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-dir fastqs/ --reference-file reference.fasta --output-dir output\n"+
                "\n   Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, and by uploading the passed fastq files and reference genome (assumes workflow has been uploaded ahead of time).\n"+
                "\n  "+sys.argv[0]+" --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-history-name fastq-history --reference-file reference.fasta --output-dir output\n"+

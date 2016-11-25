@@ -161,7 +161,7 @@ Additional Information:
 Example:
   bin/snvphyl.py --deploy-docker --fastq-dir fastqs/ --reference-file reference.fasta --min-coverage 5 --output-dir output
 
-    Runs default SNVPhyl pipeline in a Docker contain with the given input files,
+    Runs default SNVPhyl pipeline in a Docker container with the given input files,
     setting the minimum coverage for calling a SNV to be 5.
 
   bin/snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-dir fastqs/ --reference-file reference.fasta --output-dir output
