@@ -80,7 +80,7 @@ This assumes that the fastq files have been previously uploaded to Galaxy in a h
 usage: snvphyl.py [-h] [--galaxy-url GALAXY_URL]
                   [--galaxy-api-key GALAXY_API_KEY] [--deploy-docker]
                   [--keep-docker] [--docker-port DOCKER_PORT]
-                  [--snvphyl-version SNVPHYL_VERSION]
+                  [--with-docker-sudo] [--snvphyl-version SNVPHYL_VERSION]
                   [--workflow-id WORKFLOW_ID]
                   [--reference-file REFERENCE_FILE] [--output-dir OUTPUT_DIR]
                   [--fastq-dir FASTQ_DIR]
@@ -112,6 +112,7 @@ Docker (runs SNVPhyl in local Docker container):
   --keep-docker         Keep docker image running after pipeline finishes.
   --docker-port DOCKER_PORT
                         Port for deployment of Docker instance [48888].
+  --with-docker-sudo    Run `docker with `sudo` [False].
 
 SNVPhyl Versions:
   --snvphyl-version SNVPHYL_VERSION
