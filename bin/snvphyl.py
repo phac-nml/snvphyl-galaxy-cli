@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import argparse, sys, os, traceback, sys, string, json, datetime, time, subprocess
+import argparse, sys, os, traceback, sys, string, json, datetime, time, subprocess, re
 import urllib2
 from socket import error as SocketError
 from distutils.version import LooseVersion
@@ -21,6 +21,35 @@ def get_script_path():
     """
 
     return os.path.dirname(os.path.realpath(sys.argv[0]))
+
+def get_git_commit():
+    """
+    Gets the current git commit for this code (if any).
+
+    :return: The current git commit, or 'unknown' if not available.
+    """
+    script_path=get_script_path()
+    curr_wd=os.getcwd()
+    git_commit='unknown'
+
+    os.chdir(script_path)
+    git_command_line=['git','rev-parse','HEAD']
+
+    try:
+        DEVNULL = open(os.devnull, 'w')
+        git_commit=subprocess.check_output(git_command_line,stderr=DEVNULL).rstrip()
+        
+        if re.compile("^[a-f,0-9]+$").search(git_commit):
+            return git_commit
+        else:
+            git_commit = 'unknown'
+    except subprocess.CalledProcessError:
+        git_commit = 'unknown'
+    finally:
+        os.chdir(curr_wd)
+        DEVNULL.close()
+
+    return git_commit
 
 def get_all_snvphyl_versions(settings_file):
     """
@@ -802,6 +831,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     settings_fh=open(output_settings_file,'w')
     settings_fh.write("#SNVPhyl Settings\n")
     settings_fh.write("snvphyl_cli_version=%s\n" % snvphyl_cli_version)
+    settings_fh.write("snvphyl_cli_git_commit=%s\n" % get_git_commit())
     settings_fh.write("snvphyl_cli_command_line=%s\n" % " ".join(sys.argv[:]))
     settings_fh.write("snvphyl_version=%s\n" % snvphyl_version)
     settings_fh.write("workflow_type=%s\n" % workflow_type)
@@ -925,7 +955,7 @@ if __name__ == '__main__':
     versions.sort(key=LooseVersion)
     current_version=versions.pop()
 
-    available_versions = "SNVPhyl CLI: " + snvphyl_cli_version + "\n\nAvailable SNVPhyl pipelines (--snvphyl-version):\n"
+    available_versions = "SNVPhyl CLI: " + snvphyl_cli_version + "\nSNVPhyl CLI git commit: " + get_git_commit() + "\n\nAvailable SNVPhyl pipelines (--snvphyl-version):\n"
     for version in versions:
         available_versions += "\t"+version+"\n"
     available_versions += "\t"+current_version+" [default]\n"
