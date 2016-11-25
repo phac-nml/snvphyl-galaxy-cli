@@ -87,7 +87,7 @@ usage: snvphyl.py [-h] [--galaxy-url GALAXY_URL]
                   [--fastq-history-name FASTQ_HISTORY_NAME]
                   [--invalid-positions-file INVALID_POSITIONS_FILE]
                   [--run-name RUN_NAME]
-                  [--alternative-allele-ratio ALTERNATIVE_ALLELE_RATIO]
+                  [--snv-abundance-ratio SNV_ABUNDANCE_RATIO]
                   [--min-coverage MIN_COVERAGE]
                   [--min-mean-mapping MIN_MEAN_MAPPING]
                   [--repeat-minimum-length REPEAT_MINIMUM_LENGTH]
@@ -115,7 +115,7 @@ Docker (runs SNVPhyl in local Docker container):
 
 SNVPhyl Versions:
   --snvphyl-version SNVPHYL_VERSION
-                        version of SNVPhyl to execute [1.0].
+                        version of SNVPhyl to execute [1.0.1].
   --workflow-id WORKFLOW_ID
                         Galaxy workflow id.  If not specified attempts to guess
 
@@ -123,11 +123,12 @@ Input:
   --reference-file REFERENCE_FILE
                         Reference file (in .fasta format) to map reads to
   --fastq-dir FASTQ_DIR
-                        Directory of fastq files (ending in .fastq, .fq, .fastq.gz, .fq.gz). 
-                        For paired-end data must be separated into files ending in _1/_2 or _R1/_R2 
-                        or _R1_001/_R2_001.
+                        Directory of fastq files (ending in .fastq, .fq, .fastq.gz,
+			.fq.gz). For paired-end data must be separated into files ending
+			in _1/_2 or _R1/_R2 or _R1_001/_R2_001.
   --fastq-history-name FASTQ_HISTORY_NAME
-                        Galaxy history name for previously uploaded collection of fastq files.
+                        Galaxy history name for previously uploaded collection 
+			of fastq files.
 
 Output:
   --output-dir OUTPUT_DIR
@@ -137,12 +138,14 @@ Optional Parameters:
   --invalid-positions-file INVALID_POSITIONS_FILE
                         Tab-delimited file of positions to mask on the reference.
   --run-name RUN_NAME   Name of run added to output files [run]
-  --alternative-allele-ratio ALTERNATIVE_ALLELE_RATIO
-                        Cutoff ratio of alleles/bases supporting a variant before it is called [0.75]
+  --snv-abundance-ratio SNV_ABUNDANCE_RATIO
+                        Cutoff ratio of base coverage supporting a high quality 
+			variant to total coverage [0.75]
   --min-coverage MIN_COVERAGE
                         Minimum coverage for calling variants [10]
   --min-mean-mapping MIN_MEAN_MAPPING
-                        Minimum mean mapping quality for reads supporting a variant [30]
+                        Minimum mean mapping quality for reads supporting a 
+			variant [30]
   --repeat-minimum-length REPEAT_MINIMUM_LENGTH
                         Minimum length of repeat regions to remove [150]
   --repeat-minimum-pid REPEAT_MINIMUM_PID
@@ -156,23 +159,19 @@ Additional Information:
   --available-versions  show program's version number and exit
 
 Example:
-  snvphyl.py --deploy-docker --fastq-dir fastqs/ --reference-file reference.fasta --min-coverage 5 
-      --output-dir output
+  bin/snvphyl.py --deploy-docker --fastq-dir fastqs/ --reference-file reference.fasta --min-coverage 5 --output-dir output
 
-    Runs default SNVPhyl pipeline in a Docker contain with the given input files, setting the minimum
-    coverage for calling a SNV to be 5.
+    Runs default SNVPhyl pipeline in a Docker contain with the given input files, setting the minimum coverage for calling a SNV to be 5.
 
-  bin/snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-dir fastqs/
-       --reference-file reference.fasta --output-dir output
+  bin/snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-dir fastqs/ --reference-file reference.fasta --output-dir output
 
-   Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, and by uploading the 
-   passed fastq files and reference genome (assumes workflow has been uploaded ahead of time).
+   Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, and by uploading the passed fastq files and reference genome
+   (assumes workflow has been uploaded ahead of time).
 
-  snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-history-name fastq-history 
-      --reference-file reference.fasta --output-dir output
+  bin/snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-history-name fastq-history --reference-file reference.fasta --output-dir output
 
-    Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, using structured 
-    fastq data (paired or single dataset collections) from a history with the given name.
+    Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, using structured fastq data (paired or single dataset collections)
+    from a history with the given name.
 ```
 
 # Legal
