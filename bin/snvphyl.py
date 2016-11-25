@@ -37,12 +37,11 @@ def get_git_commit():
 
     try:
         DEVNULL = open(os.devnull, 'w')
-        git_commit=subprocess.check_output(git_command_line,stderr=DEVNULL).rstrip()
+        git_commit_for_code=subprocess.check_output(git_command_line,stderr=DEVNULL).rstrip()
         
-        if re.compile("^[a-f,0-9]+$").search(git_commit):
-            return git_commit
-        else:
-            git_commit = 'unknown'
+        if re.compile("^[a-f,0-9]+$").search(git_commit_for_code):
+            git_commit = git_commit_for_code
+
     except subprocess.CalledProcessError:
         git_commit = 'unknown'
     finally:
