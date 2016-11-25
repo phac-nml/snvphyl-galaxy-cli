@@ -11,6 +11,7 @@ from bioblend.galaxy import dataset_collections
 
 polling_time=10 # seconds
 use_newer_galaxy_api=False
+snvphyl_cli_version='1.0-prerelease'
 
 def get_script_path():
     """
@@ -799,7 +800,9 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
 
     output_settings_file=output_dir+'/run-settings.txt'
     settings_fh=open(output_settings_file,'w')
-    settings_fh.write("#SNVPhyl Run Settings\n")
+    settings_fh.write("#SNVPhyl Settings\n")
+    settings_fh.write("snvphyl_cli_version=%s\n" % snvphyl_cli_version)
+    settings_fh.write("snvphyl_cli_command_line=%s\n" % " ".join(sys.argv[:]))
     settings_fh.write("snvphyl_version=%s\n" % snvphyl_version)
     settings_fh.write("workflow_type=%s\n" % workflow_type)
     if fastq_dir is not None:
@@ -922,10 +925,10 @@ if __name__ == '__main__':
     versions.sort(key=LooseVersion)
     current_version=versions.pop()
 
-    available_versions = ""
+    available_versions = "SNVPhyl CLI: " + snvphyl_cli_version + "\n\nAvailable SNVPhyl pipelines (--snvphyl-version):\n"
     for version in versions:
-        available_versions += version+"\n"
-    available_versions +=current_version+" [default]\n"
+        available_versions += "\t"+version+"\n"
+    available_versions += "\t"+current_version+" [default]\n"
 
     parser = argparse.ArgumentParser(description='Run the SNVPhyl workflow using the given Galaxy credentials and download results.',
         formatter_class=argparse.RawTextHelpFormatter,
@@ -977,7 +980,7 @@ if __name__ == '__main__':
     parameter_group.add_argument('--filter-density-threshold', action="store", dest="filter_density_threshold", default=2, required=False, help='SNV threshold for identifying high-density SNV regions [2]')
 
     info_group = parser.add_argument_group("Additional Information")
-    info_group.add_argument('--available-versions', action="version", version=available_versions)
+    info_group.add_argument('--version', action="version", version=available_versions)
 
     # print help with no arguments
     if len(sys.argv)==1:
