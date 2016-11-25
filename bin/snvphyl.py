@@ -557,11 +557,12 @@ def run_snvphyl_workflow_older_galaxy(gi,snvphyl_workflow_id,history_id,dataset_
         else:
             raise e
 
-def handle_deploy_docker(docker_port,snvphyl_version_settings):
+def handle_deploy_docker(docker_port,with_docker_sudo,snvphyl_version_settings):
     """
     Deploys a Docker instance of Galaxy with the given snvphyl version workflow tools installed
 
     :param docker_port: Port to forward into Docker.
+    :param with_docker_sudo: If true, prefix `sudo` to docker command.
     :param snvphyl_version_settings:  Settings for particular version of SNVPhyl to deploy.
 
     :return: A pair of (url,key) for the Galaxy instance in Docker.  Blocks until Galaxy is up and running.
@@ -574,7 +575,12 @@ def handle_deploy_docker(docker_port,snvphyl_version_settings):
     if (docker_image is None):
         raise Exception("Error: attempting to deploy Docker image for SNVPhyl "+snvphyl_version_settings['version']+" but no matching docker container")
 
-    docker_command_line=['docker','run','-d','-p',str(docker_port)+':80',docker_image]
+    if (with_docker_sudo):
+        docker_command_line = ['sudo']
+    else:
+        docker_command_line = []
+
+    docker_command_line.extend(['docker','run','-d','-p',str(docker_port)+':80',docker_image])
 
     print "\nDeploying Docker Container"
     print "=========================="
@@ -586,21 +592,26 @@ def handle_deploy_docker(docker_port,snvphyl_version_settings):
 
     return ("http://localhost:"+str(docker_port),'admin',docker_id)
 
-def undeploy_docker_with_id(docker_id):
+def undeploy_docker_with_id(docker_id, with_docker_sudo):
     """
     Undeploys a docker instance
 
     :param docker_id: The id of the docker container to undeploy.
     """
 
-    docker_command_line=['docker','rm','-f','-v',docker_id]
+    if (with_docker_sudo):
+        docker_command_line = ['sudo']
+    else:
+        docker_command_line = []
+
+    docker_command_line.extend(['docker','rm','-f','-v',docker_id])
 
     print "\nUndeploying and cleaning up Docker Container"
     print "============================================="
     print "Running '"+" ".join(docker_command_line)+"'"
     subprocess.call(docker_command_line)
 
-def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, snv_abundance_ratio, min_coverage, min_mean_mapping,
+def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, snv_abundance_ratio, min_coverage, min_mean_mapping,
 	repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method, wrapping around 'main_galaxy' to start up a docker image if needed.
@@ -635,7 +646,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
             os.mkdir(output_dir)
 
         docker_begin_time=time.time()
-        (url,key,docker_id)=handle_deploy_docker(docker_port,snvphyl_version_settings[snvphyl_version])
+        (url,key,docker_id)=handle_deploy_docker(docker_port,with_docker_sudo,snvphyl_version_settings[snvphyl_version])
         print "Took %0.2f minutes to deploy docker" % ((time.time()-docker_begin_time)/60)
 
         try:
@@ -643,7 +654,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
                 repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir)
         finally:
             if (not keep_deployed_docker):
-                undeploy_docker_with_id(docker_id)
+                undeploy_docker_with_id(docker_id, with_docker_sudo)
             else:
                 print "Not undeploying docker.  Container id="+docker_id+", running on http://localhost:"+str(docker_port)+", with user=admin@galaxy.org, password=admin"
 
@@ -936,6 +947,7 @@ if __name__ == '__main__':
     docker_group.add_argument('--deploy-docker', action="store_true", dest="deploy_docker", required=False, help='Deply an instance of Galaxy using Docker.')
     docker_group.add_argument('--keep-docker', action="store_true", dest="keep_deployed_docker", required=False, help='Keep docker image running after pipeline finishes.')
     docker_group.add_argument('--docker-port', action="store", dest="docker_port", default=48888, required=False, help='Port for deployment of Docker instance [48888].')
+    docker_group.add_argument('--with-docker-sudo', action="store_true", dest="with_docker_sudo", required=False, help='Run `docker with `sudo` [False].')
 
     snvphyl_version_group = parser.add_argument_group('SNVPhyl Versions')
     snvphyl_version_group.add_argument('--snvphyl-version', action="store", dest="snvphyl_version", default=current_version, required=False, help='version of SNVPhyl to execute ['+current_version+'].')
