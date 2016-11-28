@@ -22,8 +22,10 @@ curl -sSL https://get.docker.com/ | sh
 # Start Docker service if not already started
 sudo service docker start
 
-# Add current user `whoami` to group docker for sudo-less execution of docker.
+# (Optional) Add current user to group docker for sudo-less execution of docker.
 # You will likely have to logout/login again to refresh groups.
+# If this is not run, the `docker` command will require `sudo` access, meaning you need to
+# run SNVPhyl with `snvphyl.py --with-docker-sudo`.
 sudo usermod -a -G docker `whoami`
 ```
 
@@ -80,7 +82,7 @@ This assumes that the fastq files have been previously uploaded to Galaxy in a h
 usage: snvphyl.py [-h] [--galaxy-url GALAXY_URL]
                   [--galaxy-api-key GALAXY_API_KEY] [--deploy-docker]
                   [--keep-docker] [--docker-port DOCKER_PORT]
-                  [--snvphyl-version SNVPHYL_VERSION]
+                  [--with-docker-sudo] [--snvphyl-version SNVPHYL_VERSION]
                   [--workflow-id WORKFLOW_ID]
                   [--reference-file REFERENCE_FILE] [--output-dir OUTPUT_DIR]
                   [--fastq-dir FASTQ_DIR]
@@ -94,7 +96,7 @@ usage: snvphyl.py [-h] [--galaxy-url GALAXY_URL]
                   [--repeat-minimum-pid REPEAT_MINIMUM_PID]
                   [--filter-density-window FILTER_DENSITY_WINDOW]
                   [--filter-density-threshold FILTER_DENSITY_THRESHOLD]
-                  [--available-versions]
+                  [--version]
 
 Run the SNVPhyl workflow using the given Galaxy credentials and download results.
 
@@ -112,6 +114,7 @@ Docker (runs SNVPhyl in local Docker container):
   --keep-docker         Keep docker image running after pipeline finishes.
   --docker-port DOCKER_PORT
                         Port for deployment of Docker instance [48888].
+  --with-docker-sudo    Run `docker with `sudo` [False].
 
 SNVPhyl Versions:
   --snvphyl-version SNVPHYL_VERSION
@@ -123,9 +126,9 @@ Input:
   --reference-file REFERENCE_FILE
                         Reference file (in .fasta format) to map reads to
   --fastq-dir FASTQ_DIR
-                        Directory of fastq files (ending in .fastq, .fq, .fastq.gz, .fq.gz). 
-                        For paired-end data must be separated into files ending in _1/_2 or _R1/_R2 
-                        or _R1_001/_R2_001.
+                        Directory of fastq files (ending in .fastq, .fq, .fastq.gz, .fq.gz).
+                        For paired-end data must be separated into files ending in _1/_2 or
+                         _R1/_R2 or _R1_001/_R2_001.
   --fastq-history-name FASTQ_HISTORY_NAME
                         Galaxy history name for previously uploaded collection of fastq files.
 
@@ -153,26 +156,23 @@ Optional Parameters:
                         SNV threshold for identifying high-density SNV regions [2]
 
 Additional Information:
-  --available-versions  show program's version number and exit
+  --version             show program's version number and exit
 
 Example:
-  snvphyl.py --deploy-docker --fastq-dir fastqs/ --reference-file reference.fasta --min-coverage 5 
-      --output-dir output
+  bin/snvphyl.py --deploy-docker --fastq-dir fastqs/ --reference-file reference.fasta --min-coverage 5 --output-dir output
 
-    Runs default SNVPhyl pipeline in a Docker contain with the given input files, setting the minimum
-    coverage for calling a SNV to be 5.
+    Runs default SNVPhyl pipeline in a Docker container with the given input files,
+    setting the minimum coverage for calling a SNV to 5.
 
-  bin/snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-dir fastqs/
-       --reference-file reference.fasta --output-dir output
+  bin/snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-dir fastqs/ --reference-file reference.fasta --output-dir output
 
-   Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, and by uploading the 
-   passed fastq files and reference genome (assumes workflow has been uploaded ahead of time).
+   Runs SNVPhyl pipeline against the given Galaxy server, with the given API key,
+   and by uploading the passed fastq files and reference genome (assumes workflow has been uploaded ahead of time).
 
-  snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-history-name fastq-history 
-      --reference-file reference.fasta --output-dir output
+  bin/snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-history-name fastq-history --reference-file reference.fasta --output-dir output
 
-    Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, using structured 
-    fastq data (paired or single dataset collections) from a history with the given name.
+    Runs SNVPhyl pipeline against the given Galaxy server, with the given API key,
+    using structured fastq data (paired or single dataset collections) from a history with the given name.
 ```
 
 # Legal

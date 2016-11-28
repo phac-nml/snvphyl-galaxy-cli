@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-import argparse, sys, os, traceback, sys, string, json, datetime, time, subprocess
+import argparse, sys, os, traceback, sys, string, json, datetime, time, subprocess, re
 import urllib2
 from socket import error as SocketError
+from distutils.version import LooseVersion
 import errno
 import pprint
 import xml.etree.ElementTree
@@ -10,6 +11,7 @@ from bioblend.galaxy import dataset_collections
 
 polling_time=10 # seconds
 use_newer_galaxy_api=False
+snvphyl_cli_version='1.0-prerelease'
 
 def get_script_path():
     """
@@ -19,6 +21,34 @@ def get_script_path():
     """
 
     return os.path.dirname(os.path.realpath(sys.argv[0]))
+
+def get_git_commit():
+    """
+    Gets the current git commit for this code (if any).
+
+    :return: The current git commit, or 'unknown' if not available.
+    """
+    script_path=get_script_path()
+    curr_wd=os.getcwd()
+    git_commit='unknown'
+
+    os.chdir(script_path)
+    git_command_line=['git','rev-parse','HEAD']
+
+    try:
+        DEVNULL = open(os.devnull, 'w')
+        git_commit_for_code=subprocess.check_output(git_command_line,stderr=DEVNULL).rstrip()
+        
+        if re.compile("^[a-f,0-9]+$").search(git_commit_for_code):
+            git_commit = git_commit_for_code
+
+    except subprocess.CalledProcessError:
+        git_commit = 'unknown'
+    finally:
+        os.chdir(curr_wd)
+        DEVNULL.close()
+
+    return git_commit
 
 def get_all_snvphyl_versions(settings_file):
     """
@@ -556,11 +586,12 @@ def run_snvphyl_workflow_older_galaxy(gi,snvphyl_workflow_id,history_id,dataset_
         else:
             raise e
 
-def handle_deploy_docker(docker_port,snvphyl_version_settings):
+def handle_deploy_docker(docker_port,with_docker_sudo,snvphyl_version_settings):
     """
     Deploys a Docker instance of Galaxy with the given snvphyl version workflow tools installed
 
     :param docker_port: Port to forward into Docker.
+    :param with_docker_sudo: If true, prefix `sudo` to docker command.
     :param snvphyl_version_settings:  Settings for particular version of SNVPhyl to deploy.
 
     :return: A pair of (url,key) for the Galaxy instance in Docker.  Blocks until Galaxy is up and running.
@@ -573,7 +604,12 @@ def handle_deploy_docker(docker_port,snvphyl_version_settings):
     if (docker_image is None):
         raise Exception("Error: attempting to deploy Docker image for SNVPhyl "+snvphyl_version_settings['version']+" but no matching docker container")
 
-    docker_command_line=['docker','run','-d','-p',str(docker_port)+':80',docker_image]
+    if (with_docker_sudo):
+        docker_command_line = ['sudo']
+    else:
+        docker_command_line = []
+
+    docker_command_line.extend(['docker','run','-d','-p',str(docker_port)+':80',docker_image])
 
     print "\nDeploying Docker Container"
     print "=========================="
@@ -585,21 +621,26 @@ def handle_deploy_docker(docker_port,snvphyl_version_settings):
 
     return ("http://localhost:"+str(docker_port),'admin',docker_id)
 
-def undeploy_docker_with_id(docker_id):
+def undeploy_docker_with_id(docker_id, with_docker_sudo):
     """
     Undeploys a docker instance
 
     :param docker_id: The id of the docker container to undeploy.
     """
 
-    docker_command_line=['docker','rm','-f','-v',docker_id]
+    if (with_docker_sudo):
+        docker_command_line = ['sudo']
+    else:
+        docker_command_line = []
+
+    docker_command_line.extend(['docker','rm','-f','-v',docker_id])
 
     print "\nUndeploying and cleaning up Docker Container"
     print "============================================="
     print "Running '"+" ".join(docker_command_line)+"'"
     subprocess.call(docker_command_line)
 
-def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
+def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
 	repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method, wrapping around 'main_galaxy' to start up a docker image if needed.
@@ -625,7 +666,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
         # Older versions of Galaxy have bugs preventing usage of 'invoke_workflow" over 'run_workflow'
         # For up to date Docker images of Galaxy, we can gurantee newer version, so use newer API methods.
         # Otherwise, use older API methods, which throws confusing exceptions but still works.
-        if snvphyl_version != '0.2-beta-1' and float(snvphyl_version) >= 1.0:
+        if LooseVersion(snvphyl_version) >= LooseVersion('1.0'):
             use_newer_galaxy_api=True
 
         if os.path.exists(output_dir):
@@ -634,7 +675,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
             os.mkdir(output_dir)
 
         docker_begin_time=time.time()
-        (url,key,docker_id)=handle_deploy_docker(docker_port,snvphyl_version_settings[snvphyl_version])
+        (url,key,docker_id)=handle_deploy_docker(docker_port,with_docker_sudo,snvphyl_version_settings[snvphyl_version])
         print "Took %0.2f minutes to deploy docker" % ((time.time()-docker_begin_time)/60)
 
         try:
@@ -642,7 +683,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
                 repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir)
         finally:
             if (not keep_deployed_docker):
-                undeploy_docker_with_id(docker_id)
+                undeploy_docker_with_id(docker_id, with_docker_sudo)
             else:
                 print "Not undeploying docker.  Container id="+docker_id+", running on http://localhost:"+str(docker_port)+", with user=admin@galaxy.org, password=admin"
 
@@ -787,7 +828,10 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
 
     output_settings_file=output_dir+'/run-settings.txt'
     settings_fh=open(output_settings_file,'w')
-    settings_fh.write("#SNVPhyl Run Settings\n")
+    settings_fh.write("#SNVPhyl Settings\n")
+    settings_fh.write("snvphyl_cli_version=%s\n" % snvphyl_cli_version)
+    settings_fh.write("snvphyl_cli_git_commit=%s\n" % get_git_commit())
+    settings_fh.write("snvphyl_cli_command_line=%s\n" % " ".join(sys.argv[:]))
     settings_fh.write("snvphyl_version=%s\n" % snvphyl_version)
     settings_fh.write("workflow_type=%s\n" % workflow_type)
     if fastq_dir is not None:
@@ -807,7 +851,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     settings_fh.write("repeat_minimum_length=%s\n" % repeat_minimum_length)
     settings_fh.write("repeat_minimum_pid=%s\n" % repeat_minimum_pid)
 
-    if snvphyl_version != '0.2-beta-1' and float(snvphyl_version) >= 1.0:
+    if LooseVersion(snvphyl_version) >= LooseVersion('1.0'):
         settings_fh.write("filter_density_window=%s\n" % filter_density_window)
         settings_fh.write("filter_density_threshold=%s\n" % filter_density_threshold)
 
@@ -907,19 +951,19 @@ if __name__ == '__main__':
     settings_file=get_script_path()+"/../etc/snvphyl-settings.xml"
     snvphyl_version_settings=get_all_snvphyl_versions(settings_file)
     versions=snvphyl_version_settings.keys()
-    versions.sort()
+    versions.sort(key=LooseVersion)
     current_version=versions.pop()
 
-    available_versions = ""
+    available_versions = "SNVPhyl CLI: " + snvphyl_cli_version + "\nSNVPhyl CLI git commit: " + get_git_commit() + "\n\nAvailable SNVPhyl pipelines (--snvphyl-version):\n"
     for version in versions:
-        available_versions += version+"\n"
-    available_versions +=current_version+" [default]\n"
+        available_versions += "\t"+version+"\n"
+    available_versions += "\t"+current_version+" [default]\n"
 
     parser = argparse.ArgumentParser(description='Run the SNVPhyl workflow using the given Galaxy credentials and download results.',
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="\nExample:"+
                "\n  "+sys.argv[0]+" --deploy-docker --fastq-dir fastqs/ --reference-file reference.fasta --min-coverage 5 --output-dir output\n"+
-               "\n    Runs default SNVPhyl pipeline in a Docker contain with the given input files, setting the minimum coverage for calling a SNV to be 5.\n\n"+
+               "\n    Runs default SNVPhyl pipeline in a Docker container with the given input files, setting the minimum coverage for calling a SNV to 5.\n\n"+
                "\n  "+sys.argv[0]+" --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-dir fastqs/ --reference-file reference.fasta --output-dir output\n"+
                "\n   Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, and by uploading the passed fastq files and reference genome (assumes workflow has been uploaded ahead of time).\n"+
                "\n  "+sys.argv[0]+" --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-history-name fastq-history --reference-file reference.fasta --output-dir output\n"+
@@ -935,6 +979,7 @@ if __name__ == '__main__':
     docker_group.add_argument('--deploy-docker', action="store_true", dest="deploy_docker", required=False, help='Deply an instance of Galaxy using Docker.')
     docker_group.add_argument('--keep-docker', action="store_true", dest="keep_deployed_docker", required=False, help='Keep docker image running after pipeline finishes.')
     docker_group.add_argument('--docker-port', action="store", dest="docker_port", default=48888, required=False, help='Port for deployment of Docker instance [48888].')
+    docker_group.add_argument('--with-docker-sudo', action="store_true", dest="with_docker_sudo", required=False, help='Run `docker with `sudo` [False].')
 
     snvphyl_version_group = parser.add_argument_group('SNVPhyl Versions')
     snvphyl_version_group.add_argument('--snvphyl-version', action="store", dest="snvphyl_version", default=current_version, required=False, help='version of SNVPhyl to execute ['+current_version+'].')
@@ -964,7 +1009,7 @@ if __name__ == '__main__':
     parameter_group.add_argument('--filter-density-threshold', action="store", dest="filter_density_threshold", default=2, required=False, help='SNV threshold for identifying high-density SNV regions [2]')
 
     info_group = parser.add_argument_group("Additional Information")
-    info_group.add_argument('--available-versions', action="version", version=available_versions)
+    info_group.add_argument('--version', action="version", version=available_versions)
 
     # print help with no arguments
     if len(sys.argv)==1:
