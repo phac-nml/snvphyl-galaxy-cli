@@ -11,7 +11,7 @@ from bioblend.galaxy import dataset_collections
 
 polling_time=10 # seconds
 use_newer_galaxy_api=False
-snvphyl_cli_version='1.0-prerelease'
+snvphyl_cli_version='1.0.1-prerelease'
 
 def get_script_path():
     """
