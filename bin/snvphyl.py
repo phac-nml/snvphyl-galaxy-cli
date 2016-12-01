@@ -36,7 +36,7 @@ def get_command_line_string():
     try:
         api_key_index = command_line_list.index(galaxy_api_key_name)
         command_line_list[api_key_index+1]='*****'
-    except:
+    except ValueError:
         pass
 
     return " ".join(command_line_list) 
