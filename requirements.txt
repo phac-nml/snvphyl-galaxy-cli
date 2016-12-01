@@ -1,1 +1,1 @@
-bioblend==0.7.0
+bioblend>=0.7.0

@@ -7,8 +7,9 @@ This project contains a command-line interface for the [SNVPhyl][] Galaxy pipeli
 The SNVPhyl CLI requires [Python][] along with some dependency modules to be installed.  To install these please run:
 
 ```bash
-git clone https://github.com/phac-nml/snvphyl-galaxy-cli.git
-sudo pip install -r snvphyl-galaxy-cli/requirements.txt
+# Remove `-b master` to use latest development version of code
+git clone -b master https://github.com/phac-nml/snvphyl-galaxy-cli.git
+pip install -r snvphyl-galaxy-cli/requirements.txt
 ```
 
 **Note: You may have to install additional Linux build tools and development libraries (e.g. `libyaml`) for some Python modules to successfully install.**
