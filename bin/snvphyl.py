@@ -13,6 +13,8 @@ polling_time=10 # seconds
 use_newer_galaxy_api=False
 snvphyl_cli_version='1.0.1-prerelease'
 
+galaxy_api_key_name='--galaxy-api-key'
+
 def get_script_path():
     """
     Gets the current script path.
@@ -21,6 +23,23 @@ def get_script_path():
     """
 
     return os.path.dirname(os.path.realpath(sys.argv[0]))
+
+def get_command_line_string():
+    """
+    Gets the command line string.
+
+    :return: The command-line as a string.
+    """
+
+    command_line_list=sys.argv[:]
+
+    try:
+        api_key_index = command_line_list.index(galaxy_api_key_name)
+        command_line_list[api_key_index+1]='*****'
+    except ValueError:
+        pass
+
+    return " ".join(command_line_list) 
 
 def get_git_commit():
     """
@@ -831,7 +850,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     settings_fh.write("#SNVPhyl Settings\n")
     settings_fh.write("snvphyl_cli_version=%s\n" % snvphyl_cli_version)
     settings_fh.write("snvphyl_cli_git_commit=%s\n" % get_git_commit())
-    settings_fh.write("snvphyl_cli_command_line=%s\n" % " ".join(sys.argv[:]))
+    settings_fh.write("snvphyl_cli_command_line=%s\n" % get_command_line_string())
     settings_fh.write("snvphyl_version=%s\n" % snvphyl_version)
     settings_fh.write("workflow_type=%s\n" % workflow_type)
     if fastq_dir is not None:
@@ -972,7 +991,7 @@ if __name__ == '__main__':
     # Requires this argument to define Galaxy instance to execute pipeline within
     galaxy_api_group = parser.add_argument_group('Galaxy API (runs SNVPhyl in external Galaxy instance)')
     galaxy_api_group.add_argument('--galaxy-url', action="store", dest="galaxy_url",required=False, help='URL to the Galaxy instance to execute SNVPhyl')
-    galaxy_api_group.add_argument('--galaxy-api-key', action="store", dest="galaxy_api_key", required=False, help='API key for the Galaxy instance for executing SNVPhyl')
+    galaxy_api_group.add_argument(galaxy_api_key_name, action="store", dest="galaxy_api_key", required=False, help='API key for the Galaxy instance for executing SNVPhyl')
 
     # Or this argument to deply a particular Galaxy instance with Docker on the given port
     docker_group = parser.add_argument_group('Docker (runs SNVPhyl in local Docker container)')
