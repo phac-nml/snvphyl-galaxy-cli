@@ -176,6 +176,10 @@ Example:
     using structured fastq data (paired or single dataset collections) from a history with the given name.
 ```
 
+# Citation
+
+Aaron Petkau, Philip Mabon, Cameron Sieffert, Natalie Knox, Jennifer Cabral, Mariam Iskander, Mark Iskander, Kelly Weedmark, Rahat Zaheer, Lee S Katz, Celine Nadon, Aleisha Reimer, Eduardo Taboada, Robert G Beiko, William Hsiao, Fiona Brinkman, Morag Graham, The IRIDA Consortium, Gary Van Domselaar. 2016. [SNVPhyl: A Single Nucleotide Variant Phylogenomics pipeline for microbial genomic epidemiology](http://biorxiv.org/content/early/2016/12/09/092940). bioRxiv doi: http://dx.doi.org/10.1101/092940.
+
 # Legal
 
 Copyright 2012-2016 Government of Canada
