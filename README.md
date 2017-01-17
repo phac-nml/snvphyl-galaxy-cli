@@ -7,8 +7,9 @@ This project contains a command-line interface for the [SNVPhyl][] Galaxy pipeli
 The SNVPhyl CLI requires [Python][] along with some dependency modules to be installed.  To install these please run:
 
 ```bash
-git clone https://github.com/phac-nml/snvphyl-galaxy-cli.git
-sudo pip install -r snvphyl-galaxy-cli/requirements.txt
+# Remove `-b master` to use latest development version of code
+git clone -b master https://github.com/phac-nml/snvphyl-galaxy-cli.git
+pip install -r snvphyl-galaxy-cli/requirements.txt
 ```
 
 **Note: You may have to install additional Linux build tools and development libraries (e.g. `libyaml`) for some Python modules to successfully install.**
@@ -175,6 +176,10 @@ Example:
     Runs SNVPhyl pipeline against the given Galaxy server, with the given API key,
     using structured fastq data (paired or single dataset collections) from a history with the given name.
 ```
+
+# Citation
+
+Aaron Petkau, Philip Mabon, Cameron Sieffert, Natalie Knox, Jennifer Cabral, Mariam Iskander, Mark Iskander, Kelly Weedmark, Rahat Zaheer, Lee S. Katz, Celine Nadon, Aleisha Reimer, Eduardo Taboada, Robert G. Beiko, William Hsiao, Fiona Brinkman, Morag Graham, The IRIDA Consortium, Gary Van Domselaar. 2016. [SNVPhyl: A Single Nucleotide Variant Phylogenomics pipeline for microbial genomic epidemiology](http://biorxiv.org/content/early/2016/12/10/092940). bioRxiv doi: http://dx.doi.org/10.1101/092940.
 
 # Legal
 
