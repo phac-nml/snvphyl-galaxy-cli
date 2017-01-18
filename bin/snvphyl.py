@@ -578,6 +578,25 @@ def write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_d
             print >> sys.stderr, "Exception occured when downloading "+file_name+", skipping..."
             print >> sys.stderr, repr(e) + ": " + str(e)
             
+def write_galaxy_provenance(gi,history_id,output_dir):
+    histories_provenance_file=output_dir+"/history-provenance.json"
+    dataset_provenance_file=output_dir+"/dataset-provenance.json"
+    histories_prov_fh=open(histories_provenance_file,'w')
+    dataset_prov_fh=open(dataset_provenance_file,'w')
+    all_datasets=gi.histories.show_history(history_id,details='all',contents=True)
+    dataset_content=[]
+    for dataset in all_datasets:
+        if (dataset['history_content_type'] == 'dataset'):
+            dataset_content.append(gi.histories.show_dataset_provenance(history_id,dataset['id'],follow=True))
+        elif (dataset['history_content_type'] == 'dataset_collection'):
+            dataset_content.append(gi.histories.show_dataset_collection(history_id,dataset['id']))
+        else:
+            raise Exception("Error: dataset with id="+dataset['id']+" in history="+history_id+" has history_content_type="+dataset['history_content_type']+". Expected one of 'dataset' or 'dataset_collection'")
+    dataset_prov_fh.write(json.dumps(dataset_content,indent=4,separators=(',', ': ')))
+    histories_prov_fh.write(json.dumps(all_datasets,indent=4,separators=(',', ': ')))
+
+    histories_prov_fh.close()
+    dataset_prov_fh.close()
 
 def run_snvphyl_workflow_newer_galaxy(gi,snvphyl_workflow_id,history_id,dataset_map,workflow_parameters,run_name):
     """
@@ -940,7 +959,9 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
 
             print "\nError occured while running workflow, downloading existing output files\n"
             write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir)
-            raise Exception('error occured in workflow, history=['+history_name+'], datasets=["'+'"; "'.join(dataset_error_list)+'"]')
+            print "\nWriting Galaxy provenance info\n"
+            write_galaxy_provenance(gi,history_id,output_dir)
+            raise Exception('error occured in workflow, history=['+history_name+'], problematic datasets=["'+'"; "'.join(dataset_error_list)+'"]')
         elif (status['state'] == 'ok'):
             workflow_complete=True
         else:
@@ -955,25 +976,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir)
 
     print "Getting provenance info from Galaxy"
-    histories_provenance_file=output_dir+"/history-provenance.json"
-    dataset_provenance_file=output_dir+"/dataset-provenance.json"
-    histories_prov_fh=open(histories_provenance_file,'w')
-    dataset_prov_fh=open(dataset_provenance_file,'w')
-    all_datasets=gi.histories.show_history(history_id,details='all',contents=True)
-    dataset_content=[]
-    for dataset in all_datasets:
-        if (dataset['history_content_type'] == 'dataset'):
-            dataset_content.append(gi.histories.show_dataset_provenance(history_id,dataset['id'],follow=True))
-        elif (dataset['history_content_type'] == 'dataset_collection'):
-            dataset_content.append(gi.histories.show_dataset_collection(history_id,dataset['id']))
-        else:
-            raise Exception("Error: dataset with id="+dataset['id']+" in history="+history_id+" has history_content_type="+dataset['history_content_type']+". Expected one of 'dataset' or 'dataset_collection'")
-    dataset_prov_fh.write(json.dumps(dataset_content,indent=4,separators=(',', ': ')))
-    histories_prov_fh.write(json.dumps(all_datasets,indent=4,separators=(',', ': ')))
-
-    histories_prov_fh.close()
-    dataset_prov_fh.close()
-    
+    write_galaxy_provenance(gi,history_id,output_dir)
 
     end_time=time.time()
     settings_fh.write("end_time=%s\n" % time.strftime("%Y-%m-%d %H:%M",time.localtime(end_time)))
