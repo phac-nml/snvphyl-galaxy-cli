@@ -4,6 +4,7 @@
 
 * Added SNVPhyl workflow version `1.0.1`.
 * Added functionality to download existing files from Galaxy in the case of an error occuring with the workflow.
+* Added `--snv-abundance-ratio` as an alternative name for the `--alternative-allele-ratio` parameter.
 
 ## 1.0.0
 
