@@ -1,5 +1,10 @@
 # Changes
 
+## 1.0.1
+
+* Added SNVPhyl workflow version `1.0.1`.
+* Added functionality to download existing files from Galaxy in the case of an error occuring with the workflow.
+
 ## 1.0.0
 
 * Initial release.

@@ -551,7 +551,7 @@ def wait_for_internet_connection(port):
             time.sleep(15)
             pass
 
-def get_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir):
+def write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir):
     """
     Gets workflow output files.
 
@@ -560,19 +560,24 @@ def get_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir
     :return: None.
     """
     for output_name in workflow_settings.findall("./outputs/output[@name]"):
-        file_pattern=output_name.attrib['fileName']
-        file_name=str.replace(file_pattern,"${run_name}",run_name)
-
-        print "Searching for dataset with name "+file_name
-        file_datasets=gi.histories.show_matching_datasets(history_id,name_filter=file_name)
-        if (len(file_datasets) == 0):
-            raise Exception("Error: no matching datasets with name "+file_name)
-        elif (len(file_datasets) > 1):
-            raise Exception("Error: multiple datasets with name "+file_name)
-        else:
-            file_dataset=file_datasets[0]
-            local_file_path=output_dir+"/"+file_name
-            gi.datasets.download_dataset(file_dataset['id'],file_path=local_file_path,use_default_filename=False)
+        try:
+            file_pattern=output_name.attrib['fileName']
+            file_name=str.replace(file_pattern,"${run_name}",run_name)
+    
+            print "Searching for dataset with name "+file_name
+            file_datasets=gi.histories.show_matching_datasets(history_id,name_filter=file_name)
+            if (len(file_datasets) == 0):
+                raise Exception("Error: no matching datasets with name "+file_name)
+            elif (len(file_datasets) > 1):
+                raise Exception("Error: multiple datasets with name "+file_name)
+            else:
+                file_dataset=file_datasets[0]
+                local_file_path=output_dir+"/"+file_name
+                gi.datasets.download_dataset(file_dataset['id'],file_path=local_file_path,use_default_filename=False)
+        except Exception, e:
+            print >> sys.stderr, "Exception occured when downloading "+file_name+", skipping..."
+            print >> sys.stderr, repr(e) + ": " + str(e)
+            
 
 def run_snvphyl_workflow_newer_galaxy(gi,snvphyl_workflow_id,history_id,dataset_map,workflow_parameters,run_name):
     """
@@ -927,6 +932,8 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     while not workflow_complete:
         status=gi.histories.get_status(history_id)
         if (status['state_details']['error'] > 0):
+            print "\nError occured while running workflow, downloading existing output files\n"
+            write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir)
             raise Exception('error occured in workflow, please check history '+history_name)
         elif (status['state'] == 'ok'):
             workflow_complete=True
@@ -939,7 +946,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
 
     print "\nGetting workflow outputs"
     print "========================"
-    get_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir)
+    write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir)
 
     print "Getting provenance info from Galaxy"
     histories_provenance_file=output_dir+"/history-provenance.json"
