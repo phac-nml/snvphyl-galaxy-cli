@@ -932,9 +932,15 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     while not workflow_complete:
         status=gi.histories.get_status(history_id)
         if (status['state_details']['error'] > 0):
+            dataset_error_list=[]
+            history_details=gi.histories.show_history(history_id,contents=True)
+            for entry in history_details:
+                if ('state' in entry and entry['state'] == 'error'):
+                    dataset_error_list.append(entry['name'])
+
             print "\nError occured while running workflow, downloading existing output files\n"
             write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir)
-            raise Exception('error occured in workflow, please check history '+history_name)
+            raise Exception('error occured in workflow, history=['+history_name+'], datasets=["'+'"; "'.join(dataset_error_list)+'"]')
         elif (status['state'] == 'ok'):
             workflow_complete=True
         else:
