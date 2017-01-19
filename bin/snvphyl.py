@@ -1044,7 +1044,7 @@ if __name__ == '__main__':
     parameter_group = parser.add_argument_group("Optional Parameters")
     parameter_group.add_argument('--invalid-positions-file', action="store", dest="invalid_positions_file", required=False, help='Tab-delimited file of positions to mask on the reference.')
     parameter_group.add_argument('--run-name', action="store", dest="run_name", default="run", required=False, help='Name of run added to output files [run]')
-    parameter_group.add_argument('--snv-abundance-ratio', action="store", dest="snv_abundance_ratio", default=0.75, required=False, help='Cutoff ratio of base coverage supporting a high quality variant to total coverage [0.75]')
+    parameter_group.add_argument('--snv-abundance-ratio', '--alternative-allele-ratio', action="store", dest="snv_abundance_ratio", default=0.75, required=False, help='Cutoff ratio of base coverage supporting a high quality variant to total coverage [0.75]')
     parameter_group.add_argument('--min-coverage', action="store", dest="min_coverage", default=10, required=False, help='Minimum coverage for calling variants [10]')
     parameter_group.add_argument('--min-mean-mapping', action="store", dest="min_mean_mapping", default=30, required=False, help='Minimum mean mapping quality for reads supporting a variant [30]')
     parameter_group.add_argument('--repeat-minimum-length', action="store", dest="repeat_minimum_length", default=150, required=False, help='Minimum length of repeat regions to remove [150]')
