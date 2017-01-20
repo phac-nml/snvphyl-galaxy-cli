@@ -11,7 +11,7 @@ from bioblend.galaxy import dataset_collections
 
 polling_time=10 # seconds
 use_newer_galaxy_api=False
-snvphyl_cli_version='1.0.1-prerelease'
+snvphyl_cli_version='1.1-prerelease'
 
 galaxy_api_key_name='--galaxy-api-key'
 
@@ -1049,7 +1049,7 @@ if __name__ == '__main__':
     parameter_group.add_argument('--min-mean-mapping', action="store", dest="min_mean_mapping", default=30, required=False, help='Minimum mean mapping quality for reads supporting a variant [30]')
     parameter_group.add_argument('--repeat-minimum-length', action="store", dest="repeat_minimum_length", default=150, required=False, help='Minimum length of repeat regions to remove [150]')
     parameter_group.add_argument('--repeat-minimum-pid', action="store", dest="repeat_minimum_pid", default=90, required=False, help='Minimum percent identity to identify repeat regions [90]')
-    parameter_group.add_argument('--filter-density-window', action="store", dest="filter_density_window", default=20, required=False, help='Window size for identifying high-density SNV regions [20]')
+    parameter_group.add_argument('--filter-density-window', action="store", dest="filter_density_window", default=500, required=False, help='Window size for identifying high-density SNV regions [500]')
     parameter_group.add_argument('--filter-density-threshold', action="store", dest="filter_density_threshold", default=2, required=False, help='SNV threshold for identifying high-density SNV regions [2]')
 
     info_group = parser.add_argument_group("Additional Information")

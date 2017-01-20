@@ -35,7 +35,7 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.8.0"
 					parameterName="pid" />
 			</parameter>
-			<parameter name="filter-density-window-size" defaultValue="20">
+			<parameter name="filter-density-window-size" defaultValue="500">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
 					parameterName="use_density_filter.window_size" />
@@ -90,7 +90,7 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.8.0"
 					parameterName="pid" />
 			</parameter>
-			<parameter name="filter-density-window-size" defaultValue="20">
+			<parameter name="filter-density-window-size" defaultValue="500">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
 					parameterName="use_density_filter.window_size" />
@@ -146,7 +146,7 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.8.0"
 					parameterName="pid" />
 			</parameter>
-			<parameter name="filter-density-window-size" defaultValue="20">
+			<parameter name="filter-density-window-size" defaultValue="500">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
 					parameterName="use_density_filter.window_size" />
@@ -201,7 +201,7 @@
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.8.0"
 					parameterName="pid" />
 			</parameter>
-			<parameter name="filter-density-window-size" defaultValue="20">
+			<parameter name="filter-density-window-size" defaultValue="500">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
 					parameterName="use_density_filter.window_size" />
