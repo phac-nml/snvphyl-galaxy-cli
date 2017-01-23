@@ -141,7 +141,7 @@ Optional Parameters:
   --invalid-positions-file INVALID_POSITIONS_FILE
                         Tab-delimited file of positions to mask on the reference.
   --run-name RUN_NAME   Name of run added to output files [run]
-  --alternative-allele-ratio ALTERNATIVE_ALLELE_RATIO
+  --alternative-allele-ratio ALTERNATIVE_ALLELE_RATIO, --snv-abundance-ratio ALTERNATIVE_ALLELE_RATIO
                         Cutoff ratio of alleles/bases supporting a variant before it is called [0.75]
   --min-coverage MIN_COVERAGE
                         Minimum coverage for calling variants [10]
