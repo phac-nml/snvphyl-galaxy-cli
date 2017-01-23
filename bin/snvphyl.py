@@ -11,7 +11,7 @@ from bioblend.galaxy import dataset_collections
 
 polling_time=10 # seconds
 use_newer_galaxy_api=False
-snvphyl_cli_version='1.0.0'
+snvphyl_cli_version='1.1'
 
 galaxy_api_key_name='--galaxy-api-key'
 
@@ -551,6 +551,53 @@ def wait_for_internet_connection(port):
             time.sleep(15)
             pass
 
+def write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir):
+    """
+    Gets workflow output files.
+
+    :param :
+
+    :return: None.
+    """
+    for output_name in workflow_settings.findall("./outputs/output[@name]"):
+        try:
+            file_pattern=output_name.attrib['fileName']
+            file_name=str.replace(file_pattern,"${run_name}",run_name)
+    
+            print "Searching for dataset with name "+file_name
+            file_datasets=gi.histories.show_matching_datasets(history_id,name_filter=file_name)
+            if (len(file_datasets) == 0):
+                raise Exception("Error: no matching datasets with name "+file_name)
+            elif (len(file_datasets) > 1):
+                raise Exception("Error: multiple datasets with name "+file_name)
+            else:
+                file_dataset=file_datasets[0]
+                local_file_path=output_dir+"/"+file_name
+                gi.datasets.download_dataset(file_dataset['id'],file_path=local_file_path,use_default_filename=False)
+        except Exception, e:
+            print >> sys.stderr, "Exception occured when downloading "+file_name+", skipping..."
+            print >> sys.stderr, repr(e) + ": " + str(e)
+            
+def write_galaxy_provenance(gi,history_id,output_dir):
+    histories_provenance_file=output_dir+"/history-provenance.json"
+    dataset_provenance_file=output_dir+"/dataset-provenance.json"
+    histories_prov_fh=open(histories_provenance_file,'w')
+    dataset_prov_fh=open(dataset_provenance_file,'w')
+    all_datasets=gi.histories.show_history(history_id,details='all',contents=True)
+    dataset_content=[]
+    for dataset in all_datasets:
+        if (dataset['history_content_type'] == 'dataset'):
+            dataset_content.append(gi.histories.show_dataset_provenance(history_id,dataset['id'],follow=True))
+        elif (dataset['history_content_type'] == 'dataset_collection'):
+            dataset_content.append(gi.histories.show_dataset_collection(history_id,dataset['id']))
+        else:
+            raise Exception("Error: dataset with id="+dataset['id']+" in history="+history_id+" has history_content_type="+dataset['history_content_type']+". Expected one of 'dataset' or 'dataset_collection'")
+    dataset_prov_fh.write(json.dumps(dataset_content,indent=4,separators=(',', ': ')))
+    histories_prov_fh.write(json.dumps(all_datasets,indent=4,separators=(',', ': ')))
+
+    histories_prov_fh.close()
+    dataset_prov_fh.close()
+
 def run_snvphyl_workflow_newer_galaxy(gi,snvphyl_workflow_id,history_id,dataset_map,workflow_parameters,run_name):
     """
     Run SNVPhyl workflow with newer Galaxy API.
@@ -659,7 +706,7 @@ def undeploy_docker_with_id(docker_id, with_docker_sudo):
     print "Running '"+" ".join(docker_command_line)+"'"
     subprocess.call(docker_command_line)
 
-def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
+def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, snv_abundance_ratio, min_coverage, min_mean_mapping,
 	repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method, wrapping around 'main_galaxy' to start up a docker image if needed.
@@ -698,7 +745,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
         print "Took %0.2f minutes to deploy docker" % ((time.time()-docker_begin_time)/60)
 
         try:
-            main_galaxy(url, key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
+            main_galaxy(url, key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, snv_abundance_ratio, min_coverage, min_mean_mapping,
                 repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir)
         finally:
             if (not keep_deployed_docker):
@@ -712,13 +759,13 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
         else:
             os.mkdir(output_dir)
 
-        main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
+        main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, snv_abundance_ratio, min_coverage, min_mean_mapping,
             repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir)
     else:
         raise Exception("Error: must specify both --galaxy-url and --galaxy-api-key or --deploy-docker")
 
 
-def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, alternative_allele_ratio, min_coverage, min_mean_mapping,
+def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, snv_abundance_ratio, min_coverage, min_mean_mapping,
 	repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method to interact with Galaxy and execute SNVPhyl.
@@ -767,7 +814,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
 
     print "\nSet up workflow input"
     print "====================="
-    set_parameter_value(workflow_settings,workflow_parameters,'alternative-allele-fraction',alternative_allele_ratio)
+    set_parameter_value(workflow_settings,workflow_parameters,'snv-abundance-ratio',snv_abundance_ratio)
     set_parameter_value(workflow_settings,workflow_parameters,'minimum-read-coverage',min_coverage)
     set_parameter_value(workflow_settings,workflow_parameters,'minimum-mean-mapping-quality',min_mean_mapping)
     set_parameter_value(workflow_settings,workflow_parameters,'repeat-minimum-length',repeat_minimum_length)
@@ -864,7 +911,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
         settings_fh.write("invalid_positions_file=%s\n" % invalid_positions_file)
 
     settings_fh.write("run_name=%s\n" % run_name)
-    settings_fh.write("alternative_allele_ratio=%s\n" % alternative_allele_ratio)
+    settings_fh.write("snv_abundance_ratio=%s\n" % snv_abundance_ratio)
     settings_fh.write("min_coverage=%s\n" % min_coverage)
     settings_fh.write("min_mean_mapping=%s\n" % min_mean_mapping)
     settings_fh.write("repeat_minimum_length=%s\n" % repeat_minimum_length)
@@ -904,7 +951,17 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     while not workflow_complete:
         status=gi.histories.get_status(history_id)
         if (status['state_details']['error'] > 0):
-            raise Exception('error occured in workflow, please check history '+history_name)
+            dataset_error_list=[]
+            history_details=gi.histories.show_history(history_id,contents=True)
+            for entry in history_details:
+                if ('state' in entry and entry['state'] == 'error'):
+                    dataset_error_list.append(entry['name'])
+
+            print "\nError occured while running workflow, downloading existing output files\n"
+            write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir)
+            print "\nWriting Galaxy provenance info\n"
+            write_galaxy_provenance(gi,history_id,output_dir)
+            raise Exception('error occured in workflow, history=['+history_name+'], problematic datasets=["'+'"; "'.join(dataset_error_list)+'"]')
         elif (status['state'] == 'ok'):
             workflow_complete=True
         else:
@@ -916,42 +973,10 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
 
     print "\nGetting workflow outputs"
     print "========================"
-
-    for output_name in workflow_settings.findall("./outputs/output[@name]"):
-        file_pattern=output_name.attrib['fileName']
-        file_name=str.replace(file_pattern,"${run_name}",run_name)
-
-        print "Searching for dataset with name "+file_name
-        file_datasets=gi.histories.show_matching_datasets(history_id,name_filter=file_name)
-        if (len(file_datasets) == 0):
-            raise Exception("Error: no matching datasets with name "+file_name)
-        elif (len(file_datasets) > 1):
-            raise Exception("Error: multiple datasets with name "+file_name)
-        else:
-            file_dataset=file_datasets[0]
-            local_file_path=output_dir+"/"+file_name
-            gi.datasets.download_dataset(file_dataset['id'],file_path=local_file_path,use_default_filename=False)
+    write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir)
 
     print "Getting provenance info from Galaxy"
-    histories_provenance_file=output_dir+"/history-provenance.json"
-    dataset_provenance_file=output_dir+"/dataset-provenance.json"
-    histories_prov_fh=open(histories_provenance_file,'w')
-    dataset_prov_fh=open(dataset_provenance_file,'w')
-    all_datasets=gi.histories.show_history(history_id,details='all',contents=True)
-    dataset_content=[]
-    for dataset in all_datasets:
-        if (dataset['history_content_type'] == 'dataset'):
-            dataset_content.append(gi.histories.show_dataset_provenance(history_id,dataset['id'],follow=True))
-        elif (dataset['history_content_type'] == 'dataset_collection'):
-            dataset_content.append(gi.histories.show_dataset_collection(history_id,dataset['id']))
-        else:
-            raise Exception("Error: dataset with id="+dataset['id']+" in history="+history_id+" has history_content_type="+dataset['history_content_type']+". Expected one of 'dataset' or 'dataset_collection'")
-    dataset_prov_fh.write(json.dumps(dataset_content,indent=4,separators=(',', ': ')))
-    histories_prov_fh.write(json.dumps(all_datasets,indent=4,separators=(',', ': ')))
-
-    histories_prov_fh.close()
-    dataset_prov_fh.close()
-    
+    write_galaxy_provenance(gi,history_id,output_dir)
 
     end_time=time.time()
     settings_fh.write("end_time=%s\n" % time.strftime("%Y-%m-%d %H:%M",time.localtime(end_time)))
@@ -1019,12 +1044,12 @@ if __name__ == '__main__':
     parameter_group = parser.add_argument_group("Optional Parameters")
     parameter_group.add_argument('--invalid-positions-file', action="store", dest="invalid_positions_file", required=False, help='Tab-delimited file of positions to mask on the reference.')
     parameter_group.add_argument('--run-name', action="store", dest="run_name", default="run", required=False, help='Name of run added to output files [run]')
-    parameter_group.add_argument('--alternative-allele-ratio', action="store", dest="alternative_allele_ratio", default=0.75, required=False, help='Cutoff ratio of alleles/bases supporting a variant before it is called [0.75]')
+    parameter_group.add_argument('--snv-abundance-ratio', '--alternative-allele-ratio', action="store", dest="snv_abundance_ratio", default=0.75, required=False, help='Cutoff ratio of base coverage supporting a high quality variant to total coverage [0.75]')
     parameter_group.add_argument('--min-coverage', action="store", dest="min_coverage", default=10, required=False, help='Minimum coverage for calling variants [10]')
     parameter_group.add_argument('--min-mean-mapping', action="store", dest="min_mean_mapping", default=30, required=False, help='Minimum mean mapping quality for reads supporting a variant [30]')
     parameter_group.add_argument('--repeat-minimum-length', action="store", dest="repeat_minimum_length", default=150, required=False, help='Minimum length of repeat regions to remove [150]')
     parameter_group.add_argument('--repeat-minimum-pid', action="store", dest="repeat_minimum_pid", default=90, required=False, help='Minimum percent identity to identify repeat regions [90]')
-    parameter_group.add_argument('--filter-density-window', action="store", dest="filter_density_window", default=20, required=False, help='Window size for identifying high-density SNV regions [20]')
+    parameter_group.add_argument('--filter-density-window', action="store", dest="filter_density_window", default=500, required=False, help='Window size for identifying high-density SNV regions [500]')
     parameter_group.add_argument('--filter-density-threshold', action="store", dest="filter_density_threshold", default=2, required=False, help='SNV threshold for identifying high-density SNV regions [2]')
 
     info_group = parser.add_argument_group("Additional Information")
