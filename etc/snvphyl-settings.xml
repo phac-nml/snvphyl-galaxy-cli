@@ -1,5 +1,227 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <snvphylWorkflows>
+	<snvphylWorkflow version="1.0.1" type="single-end-invalid-positions" uuid="c3fed8de-0887-438d-b63c-7b6a30020652" dockerContainer="apetkau/snvphyl-galaxy-1.0.1:1.0.1">
+		<inputs>
+			<sequenceReadsSingle>sequence_reads_single</sequenceReadsSingle>
+			<invalidPositions>invalid_positions</invalidPositions>
+			<reference>reference</reference>
+        	</inputs>
+		<parameters>
+			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="snv_abundance_ratio" />
+			</parameter>
+			<parameter name="minimum-mean-mapping-quality" defaultValue="30">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="mean_mapping" />
+			</parameter>
+			<parameter name="minimum-read-coverage" defaultValue="10">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="coverage" />
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/verify_map/verify_map/1.8.0"
+					parameterName="mindepth" />
+			</parameter>
+			<parameter name="repeat-minimum-length" defaultValue="150">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.8.0"
+					parameterName="length" />
+			</parameter>
+			<parameter name="repeat-minimum-pid" defaultValue="90">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.8.0"
+					parameterName="pid" />
+			</parameter>
+			<parameter name="filter-density-window-size" defaultValue="500">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="use_density_filter.window_size" />
+			</parameter>
+			<parameter name="filter-density-threshold" defaultValue="2">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="use_density_filter.threshold" />
+			</parameter>
+		</parameters>
+		<outputs>
+			<output name="filter-stats" fileName="filterStats.txt" />
+			<output name="mapping-quality" fileName="mappingQuality.txt" />
+			<output name="tree" fileName="phylogeneticTree.newick" />
+			<output name="alignment" fileName="snvAlignment.phy" />
+			<output name="matrix" fileName="snvMatrix.tsv" />
+			<output name="table" fileName="snvTable.tsv" />
+			<output name="core" fileName="vcf2core.tsv" />
+		</outputs>
+	</snvphylWorkflow>
+	<snvphylWorkflow version="1.0.1" type="single-end" uuid="a8f60b29-7a0a-452d-8c8c-feb70a9928f9" dockerContainer="apetkau/snvphyl-galaxy-1.0.1:1.0.1">
+		<inputs>
+			<sequenceReadsSingle>sequence_reads_single</sequenceReadsSingle>
+			<reference>reference</reference>
+        	</inputs>
+		<parameters>
+			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="snv_abundance_ratio" />
+			</parameter>
+			<parameter name="minimum-mean-mapping-quality" defaultValue="30">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="mean_mapping" />
+			</parameter>
+			<parameter name="minimum-read-coverage" defaultValue="10">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="coverage" />
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/verify_map/verify_map/1.8.0"
+					parameterName="mindepth" />
+			</parameter>
+			<parameter name="repeat-minimum-length" defaultValue="150">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.8.0"
+					parameterName="length" />
+			</parameter>
+			<parameter name="repeat-minimum-pid" defaultValue="90">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.8.0"
+					parameterName="pid" />
+			</parameter>
+			<parameter name="filter-density-window-size" defaultValue="500">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="use_density_filter.window_size" />
+			</parameter>
+			<parameter name="filter-density-threshold" defaultValue="2">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="use_density_filter.threshold" />
+			</parameter>
+		</parameters>
+		<outputs>
+			<output name="filter-stats" fileName="filterStats.txt" />
+			<output name="mapping-quality" fileName="mappingQuality.txt" />
+			<output name="tree" fileName="phylogeneticTree.newick" />
+			<output name="alignment" fileName="snvAlignment.phy" />
+			<output name="matrix" fileName="snvMatrix.tsv" />
+			<output name="table" fileName="snvTable.tsv" />
+			<output name="core" fileName="vcf2core.tsv" />
+		</outputs>
+	</snvphylWorkflow>
+	<snvphylWorkflow version="1.0.1" type="paired-end-invalid-positions" uuid="9022cde5-96d3-4a3b-ba59-427255418610" dockerContainer="apetkau/snvphyl-galaxy-1.0.1:1.0.1">
+		<inputs>
+			<sequenceReadsPaired>sequence_reads_paired</sequenceReadsPaired>
+			<invalidPositions>invalid_positions</invalidPositions>
+			<reference>reference</reference>
+        	</inputs>
+		<parameters>
+			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="snv_abundance_ratio" />
+			</parameter>
+			<parameter name="minimum-mean-mapping-quality" defaultValue="30">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="mean_mapping" />
+			</parameter>
+			<parameter name="minimum-read-coverage" defaultValue="10">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="coverage" />
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/verify_map/verify_map/1.8.0"
+					parameterName="mindepth" />
+			</parameter>
+			<parameter name="repeat-minimum-length" defaultValue="150">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.8.0"
+					parameterName="length" />
+			</parameter>
+			<parameter name="repeat-minimum-pid" defaultValue="90">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.8.0"
+					parameterName="pid" />
+			</parameter>
+			<parameter name="filter-density-window-size" defaultValue="500">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="use_density_filter.window_size" />
+			</parameter>
+			<parameter name="filter-density-threshold" defaultValue="2">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="use_density_filter.threshold" />
+			</parameter>
+		</parameters>
+		<outputs>
+			<output name="filter-stats" fileName="filterStats.txt" />
+			<output name="mapping-quality" fileName="mappingQuality.txt" />
+			<output name="tree" fileName="phylogeneticTree.newick" />
+			<output name="alignment" fileName="snvAlignment.phy" />
+			<output name="matrix" fileName="snvMatrix.tsv" />
+			<output name="table" fileName="snvTable.tsv" />
+			<output name="core" fileName="vcf2core.tsv" />
+		</outputs>
+	</snvphylWorkflow>
+	<snvphylWorkflow version="1.0.1" type="paired-end" uuid="3400a6d1-2329-422a-80ed-1be69bc36496" dockerContainer="apetkau/snvphyl-galaxy-1.0.1:1.0.1">
+		<inputs>
+			<sequenceReadsPaired>sequence_reads_paired</sequenceReadsPaired>
+			<reference>reference</reference>
+        	</inputs>
+		<parameters>
+			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="snv_abundance_ratio" />
+			</parameter>
+			<parameter name="minimum-mean-mapping-quality" defaultValue="30">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="mean_mapping" />
+			</parameter>
+			<parameter name="minimum-read-coverage" defaultValue="10">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="coverage" />
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/verify_map/verify_map/1.8.0"
+					parameterName="mindepth" />
+			</parameter>
+			<parameter name="repeat-minimum-length" defaultValue="150">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.8.0"
+					parameterName="length" />
+			</parameter>
+			<parameter name="repeat-minimum-pid" defaultValue="90">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/find_repeats/findrepeat/1.8.0"
+					parameterName="pid" />
+			</parameter>
+			<parameter name="filter-density-window-size" defaultValue="500">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="use_density_filter.window_size" />
+			</parameter>
+			<parameter name="filter-density-threshold" defaultValue="2">
+				<toolParameter
+					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
+					parameterName="use_density_filter.threshold" />
+			</parameter>
+		</parameters>
+		<outputs>
+			<output name="filter-stats" fileName="filterStats.txt" />
+			<output name="mapping-quality" fileName="mappingQuality.txt" />
+			<output name="tree" fileName="phylogeneticTree.newick" />
+			<output name="alignment" fileName="snvAlignment.phy" />
+			<output name="matrix" fileName="snvMatrix.tsv" />
+			<output name="table" fileName="snvTable.tsv" />
+			<output name="core" fileName="vcf2core.tsv" />
+		</outputs>
+	</snvphylWorkflow>
 	<snvphylWorkflow version="1.0" type="single-end-invalid-positions" uuid="c0e4f8c5-8a47-4a22-a42c-5256fd30526b" dockerContainer="apetkau/snvphyl-galaxy-1.0:1.0">
 		<inputs>
 			<sequenceReadsSingle>sequence_reads_single</sequenceReadsSingle>
@@ -7,7 +229,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="alternative-allele-fraction" defaultValue="0.75">
+			<parameter name="snv-abundance-ratio" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="ao" />
@@ -62,7 +284,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="alternative-allele-fraction" defaultValue="0.75">
+			<parameter name="snv-abundance-ratio" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="ao" />
@@ -118,7 +340,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="alternative-allele-fraction" defaultValue="0.75">
+			<parameter name="snv-abundance-ratio" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="ao" />
@@ -173,7 +395,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="alternative-allele-fraction" defaultValue="0.75">
+			<parameter name="snv-abundance-ratio" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="ao" />
@@ -229,7 +451,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="alternative-allele-fraction" defaultValue="0.75">
+			<parameter name="snv-abundance-ratio" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/vcf2pseudoalignment/vcf2pseudoalignment/1.5.0"
 					parameterName="ao" />
@@ -274,7 +496,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="alternative-allele-fraction" defaultValue="0.75">
+			<parameter name="snv-abundance-ratio" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/vcf2pseudoalignment/vcf2pseudoalignment/1.5.0"
 					parameterName="ao" />
@@ -334,7 +556,7 @@
 						toolId="irida.corefacility.ca/galaxy-shed/repos/nml/verify_map/verify_map/0.0.4"
 						parameterName="minmap" />
 			</parameter>
-			<parameter name="alternative-allele-fraction" defaultValue="0.75">
+			<parameter name="snv-abundance-ratio" defaultValue="0.75">
 				<toolParameter
 						toolId="irida.corefacility.ca/galaxy-shed/repos/nml/freebayes/freebayes/0.0.4"
 						parameterName="options_type.section_input_filters_type.min_alternate_fraction" />
@@ -401,7 +623,7 @@
 						toolId="irida.corefacility.ca/galaxy-shed/repos/nml/verify_map/verify_map/0.0.4"
 						parameterName="minmap" />
 			</parameter>
-			<parameter name="alternative-allele-fraction" defaultValue="0.75">
+			<parameter name="snv-abundance-ratio" defaultValue="0.75">
 				<toolParameter
 						toolId="irida.corefacility.ca/galaxy-shed/repos/nml/freebayes/freebayes/0.0.4"
 						parameterName="options_type.section_input_filters_type.min_alternate_fraction" />

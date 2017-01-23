@@ -90,7 +90,7 @@ usage: snvphyl.py [-h] [--galaxy-url GALAXY_URL]
                   [--fastq-history-name FASTQ_HISTORY_NAME]
                   [--invalid-positions-file INVALID_POSITIONS_FILE]
                   [--run-name RUN_NAME]
-                  [--alternative-allele-ratio ALTERNATIVE_ALLELE_RATIO]
+                  [--snv-abundance-ratio SNV_ABUNDANCE_RATIO]
                   [--min-coverage MIN_COVERAGE]
                   [--min-mean-mapping MIN_MEAN_MAPPING]
                   [--repeat-minimum-length REPEAT_MINIMUM_LENGTH]
@@ -141,8 +141,9 @@ Optional Parameters:
   --invalid-positions-file INVALID_POSITIONS_FILE
                         Tab-delimited file of positions to mask on the reference.
   --run-name RUN_NAME   Name of run added to output files [run]
-  --alternative-allele-ratio ALTERNATIVE_ALLELE_RATIO, --snv-abundance-ratio ALTERNATIVE_ALLELE_RATIO
-                        Cutoff ratio of alleles/bases supporting a variant before it is called [0.75]
+  --snv-abundance-ratio SNV_ABUNDANCE_RATIO, --alternative-allele-ratio SNV_ABUNDANCE_RATIO
+                        Cutoff ratio of base coverage supporting a high quality variant to
+                        total coverage [0.75]
   --min-coverage MIN_COVERAGE
                         Minimum coverage for calling variants [10]
   --min-mean-mapping MIN_MEAN_MAPPING
@@ -152,7 +153,7 @@ Optional Parameters:
   --repeat-minimum-pid REPEAT_MINIMUM_PID
                         Minimum percent identity to identify repeat regions [90]
   --filter-density-window FILTER_DENSITY_WINDOW
-                        Window size for identifying high-density SNV regions [20]
+                        Window size for identifying high-density SNV regions [500]
   --filter-density-threshold FILTER_DENSITY_THRESHOLD
                         SNV threshold for identifying high-density SNV regions [2]
 
