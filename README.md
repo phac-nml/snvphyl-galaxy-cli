@@ -141,7 +141,7 @@ Optional Parameters:
   --invalid-positions-file INVALID_POSITIONS_FILE
                         Tab-delimited file of positions to mask on the reference.
   --run-name RUN_NAME   Name of run added to output files [run]
-  --snv-abundance-ratio SNV_ABUNDANCE_RATIO
+  --snv-abundance-ratio SNV_ABUNDANCE_RATIO, --alternative-allele-ratio SNV_ABUNDANCE_RATIO
                         Cutoff ratio of base coverage supporting a high quality variant to
                         total coverage [0.75]
   --min-coverage MIN_COVERAGE
@@ -153,7 +153,7 @@ Optional Parameters:
   --repeat-minimum-pid REPEAT_MINIMUM_PID
                         Minimum percent identity to identify repeat regions [90]
   --filter-density-window FILTER_DENSITY_WINDOW
-                        Window size for identifying high-density SNV regions [20]
+                        Window size for identifying high-density SNV regions [500]
   --filter-density-threshold FILTER_DENSITY_THRESHOLD
                         SNV threshold for identifying high-density SNV regions [2]
 
