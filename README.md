@@ -90,7 +90,7 @@ usage: snvphyl.py [-h] [--galaxy-url GALAXY_URL]
                   [--fastq-history-name FASTQ_HISTORY_NAME]
                   [--invalid-positions-file INVALID_POSITIONS_FILE]
                   [--run-name RUN_NAME]
-                  [--snv-abundance-ratio SNV_ABUNDANCE_RATIO]
+                  [--relative-snv-abundance RELATIVE_SNV_ABUNDANCE]
                   [--min-coverage MIN_COVERAGE]
                   [--min-mean-mapping MIN_MEAN_MAPPING]
                   [--repeat-minimum-length REPEAT_MINIMUM_LENGTH]
@@ -119,7 +119,7 @@ Docker (runs SNVPhyl in local Docker container):
 
 SNVPhyl Versions:
   --snvphyl-version SNVPHYL_VERSION
-                        version of SNVPhyl to execute [1.0].
+                        version of SNVPhyl to execute [1.0.1].
   --workflow-id WORKFLOW_ID
                         Galaxy workflow id.  If not specified attempts to guess
 
@@ -128,8 +128,8 @@ Input:
                         Reference file (in .fasta format) to map reads to
   --fastq-dir FASTQ_DIR
                         Directory of fastq files (ending in .fastq, .fq, .fastq.gz, .fq.gz).
-                        For paired-end data must be separated into files ending in _1/_2 or
-                         _R1/_R2 or _R1_001/_R2_001.
+                        For paired-end data must be separated into files ending in _1/_2
+                        or _R1/_R2 or _R1_001/_R2_001.
   --fastq-history-name FASTQ_HISTORY_NAME
                         Galaxy history name for previously uploaded collection of fastq files.
 
@@ -141,9 +141,9 @@ Optional Parameters:
   --invalid-positions-file INVALID_POSITIONS_FILE
                         Tab-delimited file of positions to mask on the reference.
   --run-name RUN_NAME   Name of run added to output files [run]
-  --snv-abundance-ratio SNV_ABUNDANCE_RATIO, --alternative-allele-ratio SNV_ABUNDANCE_RATIO
-                        Cutoff ratio of base coverage supporting a high quality variant to
-                        total coverage [0.75]
+  --relative-snv-abundance RELATIVE_SNV_ABUNDANCE, --alternative-allele-ratio RELATIVE_SNV_ABUNDANCE
+                        Cutoff proportion of base coverage supporting a high quality variant
+                        to total coverage [0.75]
   --min-coverage MIN_COVERAGE
                         Minimum coverage for calling variants [10]
   --min-mean-mapping MIN_MEAN_MAPPING
