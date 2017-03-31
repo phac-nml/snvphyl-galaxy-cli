@@ -142,6 +142,8 @@ Optional Parameters:
                         Tab-delimited file of positions to mask on the reference.
   --run-name RUN_NAME   Name of run added to output files [run]
   --relative-snv-abundance RELATIVE_SNV_ABUNDANCE, --alternative-allele-ratio RELATIVE_SNV_ABUNDANCE
+  --relative-snv-abundance RELATIVE_SNV_ABUNDANCE, --snv-abundance-ratio RELATIVE_SNV_ABUNDANCE,
+    --alternative-allele-ratio RELATIVE_SNV_ABUNDANCE
                         Cutoff proportion of base coverage supporting a high quality variant
                         to total coverage [0.75]
   --min-coverage MIN_COVERAGE
