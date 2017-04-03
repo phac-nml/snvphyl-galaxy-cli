@@ -1,5 +1,10 @@
 # Changes
 
+## 1.2
+
+* Added additional timing measurements.
+* Added `--relative-snv-abundance` as the default name for `--snv-abundance-ratio` and `--alternative-allele-ratio` (both previous names work the same).
+
 ## 1.1
 
 * Added SNVPhyl workflow version `1.0.1`.
