@@ -892,6 +892,8 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
         invalid_positions_input_id=gi.workflows.get_workflow_inputs(snvphyl_workflow['id'],invalid_positions_name)[0]
         dataset_map[invalid_positions_input_id]={'id': invalid_positions_id, 'src': 'hda'}
 
+    upload_end_time=time.time()
+
     output_settings_file=output_dir+'/run-settings.txt'
     settings_fh=open(output_settings_file,'w')
     settings_fh.write("#SNVPhyl Settings\n")
@@ -928,6 +930,8 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     settings_fh.write("history_id=%s\n" % history_id)
     settings_fh.write("history_name=%s\n" % history_name)
     settings_fh.write("start_time=%s\n" % time.strftime("%Y-%m-%d %H:%M",time.localtime(begin_time)))
+    settings_fh.write("upload_end_time=%s\n" % time.strftime("%Y-%m-%d %H:%M",time.localtime(upload_end_time)))
+    settings_fh.write("upload_seconds=%i\n" % (upload_end_time - begin_time))
     settings_fh.flush()
 
     print "\nRunning workflow"
@@ -980,6 +984,8 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
 
     end_time=time.time()
     settings_fh.write("end_time=%s\n" % time.strftime("%Y-%m-%d %H:%M",time.localtime(end_time)))
+    settings_fh.write("workflow_seconds=%i\n" % (end_time - upload_end_time))
+    settings_fh.write("total_seconds=%i\n" % (end_time - begin_time))
     settings_fh.close()
 
     print "\nFinished"
