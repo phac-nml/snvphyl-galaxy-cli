@@ -11,7 +11,7 @@ from bioblend.galaxy import dataset_collections
 
 polling_time=10 # seconds
 use_newer_galaxy_api=False
-snvphyl_cli_version='1.2-prerelease'
+snvphyl_cli_version='1.3-prerelease'
 
 galaxy_api_key_name='--galaxy-api-key'
 
