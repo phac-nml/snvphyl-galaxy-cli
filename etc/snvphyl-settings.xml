@@ -7,7 +7,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
 					parameterName="snv_abundance_ratio" />
@@ -62,7 +62,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
 					parameterName="snv_abundance_ratio" />
@@ -118,7 +118,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
 					parameterName="snv_abundance_ratio" />
@@ -173,7 +173,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.0"
 					parameterName="snv_abundance_ratio" />
@@ -229,7 +229,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="ao" />
@@ -284,7 +284,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="ao" />
@@ -340,7 +340,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="ao" />
@@ -395,7 +395,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/consolidate_vcfs/consolidate_vcfs/1.7.0"
 					parameterName="ao" />
@@ -451,7 +451,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/vcf2pseudoalignment/vcf2pseudoalignment/1.5.0"
 					parameterName="ao" />
@@ -496,7 +496,7 @@
 			<reference>reference</reference>
         	</inputs>
 		<parameters>
-			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
 				<toolParameter
 					toolId="irida.corefacility.ca/galaxy-shed/repos/nml/vcf2pseudoalignment/vcf2pseudoalignment/1.5.0"
 					parameterName="ao" />
@@ -556,7 +556,7 @@
 						toolId="irida.corefacility.ca/galaxy-shed/repos/nml/verify_map/verify_map/0.0.4"
 						parameterName="minmap" />
 			</parameter>
-			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
 				<toolParameter
 						toolId="irida.corefacility.ca/galaxy-shed/repos/nml/freebayes/freebayes/0.0.4"
 						parameterName="options_type.section_input_filters_type.min_alternate_fraction" />
@@ -623,7 +623,7 @@
 						toolId="irida.corefacility.ca/galaxy-shed/repos/nml/verify_map/verify_map/0.0.4"
 						parameterName="minmap" />
 			</parameter>
-			<parameter name="snv-abundance-ratio" defaultValue="0.75">
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
 				<toolParameter
 						toolId="irida.corefacility.ca/galaxy-shed/repos/nml/freebayes/freebayes/0.0.4"
 						parameterName="options_type.section_input_filters_type.min_alternate_fraction" />
