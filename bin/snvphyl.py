@@ -327,6 +327,21 @@ def find_workflow_steps(tool_id,steps):
 
     return matches
 
+def upload_fastqs_single(gi,history_id,fastq_single):
+
+    single_elements=[]
+
+    for name in sorted(fastq_single.iterkeys()):
+        fastq_file=fastq_single[name]['single']
+        
+        print 'Uploading '+fastq_file
+        file_galaxy=gi.tools.upload_file(fastq_file,history_id, file_type='fastqsanger')
+        file_id=file_galaxy['outputs'][0]['id']
+
+        single_elements.append(dataset_collections.HistoryDatasetElement(name=name,id=file_id))
+
+    return single_elements
+
 def upload_fastq_collection_single(gi,history_id,fastq_single):
     """
     Uploads given fastq files to the Galaxy history.
@@ -343,14 +358,7 @@ def upload_fastq_collection_single(gi,history_id,fastq_single):
         created_library=gi.libraries.create_library("SNVPhyl Library Dataset-"+str(time.time()))
         single_elements=upload_fastqs_library_single(gi,history_id,created_library['id'],fastq_single)
     else:
-        for name in sorted(fastq_single.iterkeys()):
-            fastq_file=fastq_single[name]['single']
-            
-            print 'Uploading '+fastq_file
-            file_galaxy=gi.tools.upload_file(fastq_file,history_id, file_type='fastqsanger')
-            file_id=file_galaxy['outputs'][0]['id']
-    
-            single_elements.append(dataset_collections.HistoryDatasetElement(name=name,id=file_id))
+        single_elements=upload_fastqs_single(gi,history_id,fastq_single)
 
     # construct single collection
     single_collection_name="single_datasets"
@@ -366,7 +374,7 @@ def upload_fastq_collection_single(gi,history_id,fastq_single):
 
     return collection_response_single['id']
 
-def upload_fastq_to_history_via_library(gi,history_id,library_id,fastqs_to_upload):
+def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload):
     uploaded_ids=[]
     fastq_library_ids={}
     fastq_history_ids={}
@@ -405,7 +413,7 @@ def upload_fastq_to_history_via_library(gi,history_id,library_id,fastqs_to_uploa
                 finished_uploading=False
 
         uploaded_ids=reduced_uploaded_ids
-        sys.stdout.write('.')
+        sys.stdout.write(str(len(uploaded_ids))+'.')
         sys.stdout.flush()
         time.sleep(2)
     print 'done'
@@ -428,7 +436,7 @@ def upload_fastqs_library_paired(gi,history_id,library_id,fastq_paired):
         fastqs_to_upload[name+'/forward']=fastq_file_forward
         fastqs_to_upload[name+'/reverse']=fastq_file_reverse
         
-    fastq_history_ids=upload_fastq_to_history_via_library(gi,history_id,library_id,fastqs_to_upload)
+    fastq_history_ids=upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload)
 
     # Convert to paired-end data structure
     for name in sorted(fastq_paired.iterkeys()):
@@ -452,12 +460,39 @@ def upload_fastqs_library_single(gi,history_id,library_id,fastqs):
         fastq_file=snvphyl_docker_fastq_dir+'/'+os.path.basename(fastqs[name]['single'])
         fastqs_to_upload[name]=fastq_file
 
-    fastq_history_ids=upload_fastq_to_history_via_library(gi,history_id,library_id,fastqs_to_upload)
+    fastq_history_ids=upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload)
 
     for name in sorted(fastqs.iterkeys()):
         single_elements.append(dataset_collections.HistoryDatasetElement(name=name,id=fastq_history_ids[name]))
 
     return single_elements
+
+def upload_fastq_history_paired(gi,history_id,fastq_paired):
+
+    paired_elements=[]
+
+    for name in sorted(fastq_paired.iterkeys()):
+        entry=fastq_paired[name]
+        forward=entry['forward']
+        reverse=entry['reverse']
+        
+        print 'Uploading as copy file='+forward
+        forward_galaxy=gi.tools.upload_file(forward,history_id, file_type='fastqsanger')
+        forward_id=forward_galaxy['outputs'][0]['id']
+        print 'Uploading as copy file='+reverse
+        reverse_galaxy=gi.tools.upload_file(reverse,history_id, file_type='fastqsanger')
+        reverse_id=reverse_galaxy['outputs'][0]['id']
+
+        paired_elements.append(dataset_collections.CollectionElement(
+            name=name,
+            type='paired',
+            elements=[
+                dataset_collections.HistoryDatasetElement(name='forward', id=forward_id),
+                dataset_collections.HistoryDatasetElement(name='reverse', id=reverse_id)
+            ]
+        ))
+
+    return paired_elements
 
 def upload_fastq_collection_paired(gi,history_id,fastq_paired):
     """
@@ -470,31 +505,13 @@ def upload_fastq_collection_paired(gi,history_id,fastq_paired):
     :return: The dataset collection id for the constructed dataset.
     """
 
+    paired_elements=[]
+
     if (upload_fastqs_as_links):
         created_library=gi.libraries.create_library("SNVPhyl Library Dataset-"+str(time.time()))
         paired_elements=upload_fastqs_library_paired(gi,history_id,created_library['id'],fastq_paired)
     else:
-        paired_elements=[]
-        for name in sorted(fastq_paired.iterkeys()):
-            entry=fastq_paired[name]
-            forward=entry['forward']
-            reverse=entry['reverse']
-            
-            print 'Uploading as copy file='+forward
-            forward_galaxy=gi.tools.upload_file(forward,history_id, file_type='fastqsanger')
-            forward_id=forward_galaxy['outputs'][0]['id']
-            print 'Uploading as copy file='+reverse
-            reverse_galaxy=gi.tools.upload_file(reverse,history_id, file_type='fastqsanger')
-            reverse_id=reverse_galaxy['outputs'][0]['id']
-    
-            paired_elements.append(dataset_collections.CollectionElement(
-                name=name,
-                type='paired',
-                elements=[
-                    dataset_collections.HistoryDatasetElement(name='forward', id=forward_id),
-                    dataset_collections.HistoryDatasetElement(name='reverse', id=reverse_id)
-                ]
-            ))
+        paired_elements=upload_fastq_history_paired(gi,history_id,fastq_paired)
 
     # construct paired collection
     paired_collection_name="paired_datasets"
