@@ -16,7 +16,8 @@ snvphyl_cli_version='1.3-prerelease'
 galaxy_api_key_name='--galaxy-api-key'
 
 snvphyl_docker_fastq_dir='/snvphyl-data/fastq'
-use_docker_fastq_dir=True
+
+upload_fastqs_as_links=True
 
 def get_script_path():
     """
@@ -425,8 +426,8 @@ def upload_fastq_collection_paired(gi,history_id,fastq_paired):
     :return: The dataset collection id for the constructed dataset.
     """
 
-    if (use_docker_fastq_dir):
-        created_library=gi.libraries.create_library("Test name")
+    if (upload_fastqs_as_links):
+        created_library=gi.libraries.create_library("SNVPhyl Library Dataset-"+str(time.time()))
 
         fastq_history_ids=upload_fastq_library_paired(gi,history_id,created_library['id'],fastq_paired)
 
@@ -784,8 +785,8 @@ def undeploy_docker_with_id(docker_id, with_docker_sudo):
     print "Running '"+" ".join(docker_command_line)+"'"
     subprocess.call(docker_command_line)
 
-def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, relative_snv_abundance, min_coverage, min_mean_mapping,
-	repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
+def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_files_as_links, fastq_history_name, reference_file, run_name, relative_snv_abundance, 
+         min_coverage, min_mean_mapping, repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method, wrapping around 'main_galaxy' to start up a docker image if needed.
 
@@ -803,9 +804,13 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
     if (not output_dir):
         raise Exception("Error: must specify an --output-dir")
 
+    upload_fastqs_as_links=fastq_files_as_links
+
     if (deploy_docker and (galaxy_url or galaxy_api_key)):
         raise Exception("Error: cannot specify --galaxy-url and --galaxy-api-key along with --deploy-docker")
     elif (deploy_docker):
+
+        upload_fastqs_as_links=True
 
         # Older versions of Galaxy have bugs preventing usage of 'invoke_workflow" over 'run_workflow'
         # For up to date Docker images of Galaxy, we can gurantee newer version, so use newer API methods.
@@ -1121,6 +1126,7 @@ if __name__ == '__main__':
 
     # Requires either this argument for direct upload of fastq files
     input_group.add_argument('--fastq-dir', action="store", dest="fastq_dir", required=False, help='Directory of fastq files (ending in .fastq, .fq, .fastq.gz, .fq.gz). For paired-end data must be separated into files ending in _1/_2 or _R1/_R2 or _R1_001/_R2_001.')
+    input_group.add_argument('--fastq-files-as-links', action="store_true", dest="fastq_files_as_links", required=False, help='Link to the fastq files in Galaxy instead of making copies.  This significantly speeds up SNVPhyl, but requires the Galaxy server to have direct access to fastq/ directory (e.g., same filesystem) and requires Galaxy to be configured with `allow_library_path_paste=True`. Useage of `--deploy-docker` enables this option by default [False]')
     # Or this argument for using already uploaded files
     input_group.add_argument('--fastq-history-name', action="store", dest="fastq_history_name", required=False, help='Galaxy history name for previously uploaded collection of fastq files.')
 
