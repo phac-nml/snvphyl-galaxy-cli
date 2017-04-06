@@ -15,6 +15,9 @@ snvphyl_cli_version='1.3-prerelease'
 
 galaxy_api_key_name='--galaxy-api-key'
 
+snvphyl_docker_fastq_dir='/snvphyl-data/fastq'
+use_docker_fastq_dir=True
+
 def get_script_path():
     """
     Gets the current script path.
@@ -652,15 +655,16 @@ def run_snvphyl_workflow_older_galaxy(gi,snvphyl_workflow_id,history_id,dataset_
         else:
             raise e
 
-def handle_deploy_docker(docker_port,with_docker_sudo,snvphyl_version_settings):
+def handle_deploy_docker(docker_port,with_docker_sudo,snvphyl_version_settings,fastq_dir):
     """
     Deploys a Docker instance of Galaxy with the given snvphyl version workflow tools installed
 
     :param docker_port: Port to forward into Docker.
     :param with_docker_sudo: If true, prefix `sudo` to docker command.
     :param snvphyl_version_settings:  Settings for particular version of SNVPhyl to deploy.
+    :param fastq_dir:  The input fastq direcory. If true, the directory will be mounted in docker under the directory in snvphyl_docker_fastq_dir.
 
-    :return: A pair of (url,key) for the Galaxy instance in Docker.  Blocks until Galaxy is up and running.
+    :return: A pair of (url,key. url and key are for the Galaxy instance in Docker.  Blocks until Galaxy is up and running. 
     """
 
     if ('dockerContainer' not in snvphyl_version_settings):
@@ -675,7 +679,12 @@ def handle_deploy_docker(docker_port,with_docker_sudo,snvphyl_version_settings):
     else:
         docker_command_line = []
 
-    docker_command_line.extend(['docker','run','-d','-p',str(docker_port)+':80',docker_image])
+    if (fastq_dir is not None):
+        use_docker_fastq_dir=True
+        fastq_dir_abs = os.path.abspath(fastq_dir)
+        docker_command_line.extend(['docker','run','-d','-p',str(docker_port)+':80','-v',str(fastq_dir_abs)+':'+snvphyl_docker_fastq_dir,docker_image])
+    else:
+        docker_command_line.extend(['docker','run','-d','-p',str(docker_port)+':80',docker_image])
 
     print "\nDeploying Docker Container"
     print "=========================="
@@ -741,7 +750,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
             os.mkdir(output_dir)
 
         docker_begin_time=time.time()
-        (url,key,docker_id)=handle_deploy_docker(docker_port,with_docker_sudo,snvphyl_version_settings[snvphyl_version])
+        (url,key,docker_id)=handle_deploy_docker(docker_port,with_docker_sudo,snvphyl_version_settings[snvphyl_version],fastq_dir)
         print "Took %0.2f minutes to deploy docker" % ((time.time()-docker_begin_time)/60)
 
         try:
