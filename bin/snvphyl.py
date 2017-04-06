@@ -10,6 +10,7 @@ from bioblend import galaxy
 from bioblend.galaxy import dataset_collections
 
 polling_time=10 # seconds
+library_upload_timeout=120
 use_newer_galaxy_api=False
 snvphyl_cli_version='1.3-prerelease'
 
@@ -393,6 +394,7 @@ def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_uplo
     finished_uploading=False
     uploaded_ids=fastq_library_ids.keys()
     reduced_uploaded_ids=uploaded_ids
+    time_start_uploading=time.time()
     while (not finished_uploading):
         finished_uploading=True
 
@@ -411,6 +413,9 @@ def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_uplo
                 reduced_uploaded_ids.remove(dataset)
             else:
                 finished_uploading=False
+
+        if (time.time()-time_start_uploading > library_upload_timeout):
+            raise Exception("Error: Maximum upload timout of " + str(library_upload_timeout) + "s reached")
 
         uploaded_ids=reduced_uploaded_ids
         sys.stdout.write(str(len(uploaded_ids))+'.')
