@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <snvphylWorkflows>
-	<snvphylWorkflow version="1.0.1" type="single-end-invalid-positions" uuid="c3fed8de-0887-438d-b63c-7b6a30020652" dockerContainer="apetkau/snvphyl-galaxy-1.0.1:1.0.1">
+	<snvphylWorkflow version="1.0.1" type="single-end-invalid-positions" uuid="c3fed8de-0887-438d-b63c-7b6a30020652" dockerContainer="phacnml/snvphyl-galaxy-1.0.1:1.0.1b">
 		<inputs>
 			<sequenceReadsSingle>sequence_reads_single</sequenceReadsSingle>
 			<invalidPositions>invalid_positions</invalidPositions>
@@ -56,7 +56,7 @@
 			<output name="core" fileName="vcf2core.tsv" />
 		</outputs>
 	</snvphylWorkflow>
-	<snvphylWorkflow version="1.0.1" type="single-end" uuid="a8f60b29-7a0a-452d-8c8c-feb70a9928f9" dockerContainer="apetkau/snvphyl-galaxy-1.0.1:1.0.1">
+	<snvphylWorkflow version="1.0.1" type="single-end" uuid="a8f60b29-7a0a-452d-8c8c-feb70a9928f9" dockerContainer="phacnml/snvphyl-galaxy-1.0.1:1.0.1b">
 		<inputs>
 			<sequenceReadsSingle>sequence_reads_single</sequenceReadsSingle>
 			<reference>reference</reference>
@@ -111,7 +111,7 @@
 			<output name="core" fileName="vcf2core.tsv" />
 		</outputs>
 	</snvphylWorkflow>
-	<snvphylWorkflow version="1.0.1" type="paired-end-invalid-positions" uuid="9022cde5-96d3-4a3b-ba59-427255418610" dockerContainer="apetkau/snvphyl-galaxy-1.0.1:1.0.1">
+	<snvphylWorkflow version="1.0.1" type="paired-end-invalid-positions" uuid="9022cde5-96d3-4a3b-ba59-427255418610" dockerContainer="phacnml/snvphyl-galaxy-1.0.1:1.0.1b">
 		<inputs>
 			<sequenceReadsPaired>sequence_reads_paired</sequenceReadsPaired>
 			<invalidPositions>invalid_positions</invalidPositions>
@@ -167,7 +167,7 @@
 			<output name="core" fileName="vcf2core.tsv" />
 		</outputs>
 	</snvphylWorkflow>
-	<snvphylWorkflow version="1.0.1" type="paired-end" uuid="3400a6d1-2329-422a-80ed-1be69bc36496" dockerContainer="apetkau/snvphyl-galaxy-1.0.1:1.0.1">
+	<snvphylWorkflow version="1.0.1" type="paired-end" uuid="3400a6d1-2329-422a-80ed-1be69bc36496" dockerContainer="phacnml/snvphyl-galaxy-1.0.1:1.0.1b">
 		<inputs>
 			<sequenceReadsPaired>sequence_reads_paired</sequenceReadsPaired>
 			<reference>reference</reference>
