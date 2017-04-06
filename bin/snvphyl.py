@@ -339,14 +339,18 @@ def upload_fastq_collection_single(gi,history_id,fastq_single):
     """
 
     single_elements=[]
-    for name in sorted(fastq_single.iterkeys()):
-        fastq_file=fastq_single[name]['single']
-        
-        print 'Uploading '+fastq_file
-        file_galaxy=gi.tools.upload_file(fastq_file,history_id, file_type='fastqsanger')
-        file_id=file_galaxy['outputs'][0]['id']
-
-        single_elements.append(dataset_collections.HistoryDatasetElement(name=name,id=file_id))
+    if (upload_fastqs_as_links):
+        created_library=gi.libraries.create_library("SNVPhyl Library Dataset-"+str(time.time()))
+        single_elements=upload_fastqs_library_single(gi,history_id,created_library['id'],fastq_single)
+    else:
+        for name in sorted(fastq_single.iterkeys()):
+            fastq_file=fastq_single[name]['single']
+            
+            print 'Uploading '+fastq_file
+            file_galaxy=gi.tools.upload_file(fastq_file,history_id, file_type='fastqsanger')
+            file_id=file_galaxy['outputs'][0]['id']
+    
+            single_elements.append(dataset_collections.HistoryDatasetElement(name=name,id=file_id))
 
     # construct single collection
     single_collection_name="single_datasets"
@@ -438,6 +442,22 @@ def upload_fastqs_library_paired(gi,history_id,library_id,fastq_paired):
         ))
     
     return paired_elements
+
+def upload_fastqs_library_single(gi,history_id,library_id,fastqs):
+
+    fastqs_to_upload={}
+    single_elements=[]
+
+    for name in fastqs.iterkeys():
+        fastq_file=snvphyl_docker_fastq_dir+'/'+os.path.basename(fastqs[name]['single'])
+        fastqs_to_upload[name]=fastq_file
+
+    fastq_history_ids=upload_fastq_to_history_via_library(gi,history_id,library_id,fastqs_to_upload)
+
+    for name in sorted(fastqs.iterkeys()):
+        single_elements.append(dataset_collections.HistoryDatasetElement(name=name,id=fastq_history_ids[name]))
+
+    return single_elements
 
 def upload_fastq_collection_paired(gi,history_id,fastq_paired):
     """
