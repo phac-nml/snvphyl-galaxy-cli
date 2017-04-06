@@ -361,6 +361,59 @@ def upload_fastq_collection_single(gi,history_id,fastq_single):
 
     return collection_response_single['id']
 
+def upload_fastq_library_paired(gi,history_id,library_id,fastq_paired):
+
+    uploaded_ids=[]
+    fastq_library_ids={}
+    fastq_history_ids={}
+
+    for name in sorted(fastq_paired.iterkeys()):
+        entry=fastq_paired[name]
+        forward=entry['forward']
+        reverse=entry['reverse']
+        
+        print 'Uploading to library '+forward
+        forward_galaxy=gi.libraries.upload_from_galaxy_filesystem(library_id, snvphyl_docker_fastq_dir+'/'+os.path.basename(forward), file_type='fastqsanger', link_data_only='link_to_files')
+        forward_id=forward_galaxy[0]['id']
+        print 'Uploading to library '+reverse
+        reverse_galaxy=gi.libraries.upload_from_galaxy_filesystem(library_id, snvphyl_docker_fastq_dir+'/'+os.path.basename(reverse), file_type='fastqsanger', link_data_only='link_to_files')
+        reverse_id=reverse_galaxy[0]['id']
+
+        fastq_library_ids[forward_id] = {'name':name,'type':'forward'}
+        fastq_library_ids[reverse_id] = {'name':name,'type':'reverse'}
+        uploaded_ids.extend([forward_id,reverse_id])
+
+    sys.stdout.write("Waiting for library datasets to finish processing...")
+    finished_uploading=False
+    reduced_uploaded_ids=uploaded_ids
+    while (not finished_uploading):
+        finished_uploading=True
+
+        for dataset in uploaded_ids: 
+            state=gi.libraries.show_dataset(library_id,dataset)['state']
+            if (state == 'error'):
+                raise Exception("Error uploading dataset "+dataset+" to Galaxy Library "+library_id)
+            elif (state == 'ok'):
+                uploaded_history=gi.histories.upload_dataset_from_library(history_id,dataset)
+                dataset_history_id=uploaded_history['id']
+
+                name=fastq_library_ids[dataset]['name']
+                fastq_type=fastq_library_ids[dataset]['type']
+                if name not in fastq_history_ids:
+                    fastq_history_ids[name]={}
+                fastq_history_ids[name][fastq_type]=dataset_history_id
+
+                reduced_uploaded_ids=list(reduced_uploaded_ids)
+                reduced_uploaded_ids.remove(dataset)
+            else:
+                finished_uploading=False
+        uploaded_ids=reduced_uploaded_ids
+        sys.stdout.write('.')
+        time.sleep(2)
+    print 'done'
+    
+    return fastq_history_ids
+
 def upload_fastq_collection_paired(gi,history_id,fastq_paired):
     """
     Uploads given fastq files to the Galaxy history.
@@ -372,27 +425,43 @@ def upload_fastq_collection_paired(gi,history_id,fastq_paired):
     :return: The dataset collection id for the constructed dataset.
     """
 
-    paired_elements=[]
-    for name in sorted(fastq_paired.iterkeys()):
-        entry=fastq_paired[name]
-        forward=entry['forward']
-        reverse=entry['reverse']
-        
-        print 'Uploading '+forward
-        forward_galaxy=gi.tools.upload_file(forward,history_id, file_type='fastqsanger')
-        forward_id=forward_galaxy['outputs'][0]['id']
-        print 'Uploading '+reverse
-        reverse_galaxy=gi.tools.upload_file(reverse,history_id, file_type='fastqsanger')
-        reverse_id=reverse_galaxy['outputs'][0]['id']
+    if (use_docker_fastq_dir):
+        created_library=gi.libraries.create_library("Test name")
 
-        paired_elements.append(dataset_collections.CollectionElement(
-            name=name,
-            type='paired',
-            elements=[
-                dataset_collections.HistoryDatasetElement(name='forward', id=forward_id),
-                dataset_collections.HistoryDatasetElement(name='reverse', id=reverse_id)
-            ]
-        ))
+        fastq_history_ids=upload_fastq_library_paired(gi,history_id,created_library['id'],fastq_paired)
+
+        paired_elements=[]
+        for name in sorted(fastq_history_ids.iterkeys()):
+            paired_elements.append(dataset_collections.CollectionElement(
+                name=name,
+                type='paired',
+                elements=[
+                    dataset_collections.HistoryDatasetElement(name='forward', id=fastq_history_ids[name]['forward']),
+                    dataset_collections.HistoryDatasetElement(name='reverse', id=fastq_history_ids[name]['reverse'])
+                ]
+            ))
+    else:
+        paired_elements=[]
+        for name in sorted(fastq_paired.iterkeys()):
+            entry=fastq_paired[name]
+            forward=entry['forward']
+            reverse=entry['reverse']
+            
+            print 'Uploading '+forward
+            forward_galaxy=gi.tools.upload_file(forward,history_id, file_type='fastqsanger')
+            forward_id=forward_galaxy['outputs'][0]['id']
+            print 'Uploading '+reverse
+            reverse_galaxy=gi.tools.upload_file(reverse,history_id, file_type='fastqsanger')
+            reverse_id=reverse_galaxy['outputs'][0]['id']
+    
+            paired_elements.append(dataset_collections.CollectionElement(
+                name=name,
+                type='paired',
+                elements=[
+                    dataset_collections.HistoryDatasetElement(name='forward', id=forward_id),
+                    dataset_collections.HistoryDatasetElement(name='reverse', id=reverse_id)
+                ]
+            ))
 
     # construct paired collection
     paired_collection_name="paired_datasets"
