@@ -937,9 +937,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
         raise Exception("Error: cannot specify --galaxy-url and --galaxy-api-key along with --deploy-docker")
     elif (deploy_docker):
 
-        # Speeds uploading of files by mounting fastq directory in Docker and linking to files
-        # Only works in docker containers for version >= 1.0.1
-        if (fastq_dir is not None and LooseVersion(snvphyl_version) >= LooseVersion('1.0.1')):
+        if (fastq_dir is not None):
             upload_fastqs_as_links=True
             use_docker_fastq_dir=True
 
