@@ -532,10 +532,10 @@ def upload_fastq_history_paired(gi,history_id,fastq_paired):
         forward=entry['forward']
         reverse=entry['reverse']
         
-        print 'Uploading as copy file='+forward
+        print 'Uploading as copy '+forward
         forward_galaxy=gi.tools.upload_file(forward,history_id, file_type='fastqsanger')
         forward_id=forward_galaxy['outputs'][0]['id']
-        print 'Uploading as copy file='+reverse
+        print 'Uploading as copy '+reverse
         reverse_galaxy=gi.tools.upload_file(reverse,history_id, file_type='fastqsanger')
         reverse_id=reverse_galaxy['outputs'][0]['id']
 
@@ -938,7 +938,8 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
     elif (deploy_docker):
 
         # Speeds uploading of files by mounting fastq directory in Docker and linking to files
-        if (fastq_dir is not None):
+        # Only works in docker containers for version >= 1.0.1
+        if (fastq_dir is not None and LooseVersion(snvphyl_version) >= LooseVersion('1.0.1')):
             upload_fastqs_as_links=True
             use_docker_fastq_dir=True
 
