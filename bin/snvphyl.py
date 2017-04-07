@@ -1241,7 +1241,7 @@ if __name__ == '__main__':
     docker_group.add_argument('--deploy-docker', action="store_true", dest="deploy_docker", required=False, help='Deply an instance of Galaxy using Docker.')
     docker_group.add_argument('--keep-docker', action="store_true", dest="keep_deployed_docker", required=False, help='Keep docker image running after pipeline finishes.')
     docker_group.add_argument('--docker-port', action="store", dest="docker_port", default=48888, required=False, help='Port for deployment of Docker instance [48888].')
-    docker_group.add_argument('--docker-cpus', action="store", type=int, dest="docker_cpus", default=-1, required=False, help='Limit on number of CPUs docker should use. A value < 0 means use all CPUs available on the machine. [-1].')
+    docker_group.add_argument('--docker-cpus', action="store", type=int, dest="docker_cpus", default=-1, required=False, help='Limit on number of CPUs docker should use. The value -1 means use all CPUs available on the machine [-1]')
     docker_group.add_argument('--with-docker-sudo', action="store_true", dest="with_docker_sudo", required=False, help='Run `docker with `sudo` [False].')
 
     snvphyl_version_group = parser.add_argument_group('SNVPhyl Versions')
