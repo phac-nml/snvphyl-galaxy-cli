@@ -284,7 +284,7 @@ def structure_fastqs(fastq_dir):
     # check data structure
     fastq_single={}
     fastq_paired={}
-    print "\nStructuring data in directory '"+fastq_dir+"' like:"
+    print "Structuring data in directory '"+fastq_dir+"' like:"
     for name in sorted(fastq_files.iterkeys()):
         entry=fastq_files[name]
         single=entry.get('single')
@@ -330,6 +330,15 @@ def find_workflow_steps(tool_id,steps):
     return matches
 
 def upload_fastqs_single(gi,history_id,fastq_single):
+    """
+    Uploads the given single-end fastq files to a Galaxy history.
+
+    :param gi:  Galaxy instance.
+    :param history_id:  History id to upload into.
+    :param fastq_single: Map of single-end fastq names to 'single' paths for files to upload.
+
+    :return:  Map of fastq names to history ids in Galaxy for each file.
+    """
 
     single_elements=[]
 
@@ -346,7 +355,7 @@ def upload_fastqs_single(gi,history_id,fastq_single):
 
 def upload_fastq_collection_single(gi,history_id,fastq_single):
     """
-    Uploads given fastq files to the Galaxy history.
+    Uploads given fastq files to the Galaxy history and builds a dataset collection.
 
     :param gi:  Galaxy instance.
     :param history_Id:  History id to upload into.
@@ -377,6 +386,18 @@ def upload_fastq_collection_single(gi,history_id,fastq_single):
     return collection_response_single['id']
 
 def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload):
+    """
+    Uploads the given fastq files to a Galaxy History via a Dataset Library.
+    This is required for linking instead of copying, as that can only be done via a Dataset Library.
+
+    :param gi:  Galaxy instance.
+    :param history_id:  History id to upload into.
+    :param library_id:  Library id to upload into.
+    :param fastqs_to_upload: Map of fastq names to paths for files to upload.
+
+    :return:  Map of fastq names to history ids in Galaxy for each file.  Will block until Galaxy is finished processing.
+    """
+
     uploaded_ids=[]
     fastq_library_ids={}
     fastq_history_ids={}
@@ -431,6 +452,16 @@ def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_uplo
     return fastq_history_ids
 
 def upload_fastqs_library_paired(gi,history_id,library_id,fastq_paired):
+    """
+    Uploads the given paired-end fastq files to a Galaxy history via a dataset library.
+
+    :param gi:  Galaxy instance.
+    :param history_id:  History id to upload into.
+    :param library_id:  Library id to upload into.
+    :param fastq_paired: Map of paired-end fastq names to forward/reverse paths for files to upload.
+
+    :return:  Map of fastq names to history ids in Galaxy for each file.
+    """
 
     fastqs_to_upload={}
     paired_elements=[]
@@ -459,6 +490,16 @@ def upload_fastqs_library_paired(gi,history_id,library_id,fastq_paired):
     return paired_elements
 
 def upload_fastqs_library_single(gi,history_id,library_id,fastqs):
+    """
+    Uploads the given single-end fastq files to a Galaxy history via a dataset library.
+
+    :param gi:  Galaxy instance.
+    :param history_id:  History id to upload into.
+    :param library_id:  Library id to upload into.
+    :param fastqs: Map of single-end fastq names to 'single' paths for files to upload.
+
+    :return:  Map of fastq names to history ids in Galaxy for each file.
+    """
 
     fastqs_to_upload={}
     single_elements=[]
@@ -474,6 +515,15 @@ def upload_fastqs_library_single(gi,history_id,library_id,fastqs):
     return single_elements
 
 def upload_fastq_history_paired(gi,history_id,fastq_paired):
+    """
+    Uploads the given paired-end fastq files to a Galaxy history.
+
+    :param gi:  Galaxy instance.
+    :param history_id:  History id to upload into.
+    :param fastqs: Map of paired-end fastq names to forward/reverse paths for files to upload.
+
+    :return:  Map of fastq names to history ids in Galaxy for each file.
+    """
 
     paired_elements=[]
 
@@ -707,6 +757,15 @@ def write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_d
             print >> sys.stderr, repr(e) + ": " + str(e)
             
 def write_galaxy_provenance(gi,history_id,output_dir):
+    """
+    Writes provenance information from Galaxy to JSON output files.
+
+    :param history_id:  The history id in Galaxy to examine.
+    :param output_dir:  The directory to write the output files.
+
+    :return: None.
+    """
+
     histories_provenance_file=output_dir+"/history-provenance.json"
     dataset_provenance_file=output_dir+"/dataset-provenance.json"
     histories_prov_fh=open(histories_provenance_file,'w')
