@@ -83,10 +83,11 @@ This assumes that the fastq files have been previously uploaded to Galaxy in a h
 usage: snvphyl.py [-h] [--galaxy-url GALAXY_URL]
                   [--galaxy-api-key GALAXY_API_KEY] [--deploy-docker]
                   [--keep-docker] [--docker-port DOCKER_PORT]
-                  [--with-docker-sudo] [--snvphyl-version SNVPHYL_VERSION]
+                  [--docker-cpus DOCKER_CPUS] [--with-docker-sudo]
+                  [--snvphyl-version SNVPHYL_VERSION]
                   [--workflow-id WORKFLOW_ID]
                   [--reference-file REFERENCE_FILE] [--output-dir OUTPUT_DIR]
-                  [--fastq-dir FASTQ_DIR]
+                  [--fastq-dir FASTQ_DIR] [--fastq-files-as-links]
                   [--fastq-history-name FASTQ_HISTORY_NAME]
                   [--invalid-positions-file INVALID_POSITIONS_FILE]
                   [--run-name RUN_NAME]
@@ -115,6 +116,9 @@ Docker (runs SNVPhyl in local Docker container):
   --keep-docker         Keep docker image running after pipeline finishes.
   --docker-port DOCKER_PORT
                         Port for deployment of Docker instance [48888].
+  --docker-cpus DOCKER_CPUS
+                        Limit on number of CPUs docker should use. The value -1 means
+                        use all CPUs available on the machine [-1]
   --with-docker-sudo    Run `docker with `sudo` [False].
 
 SNVPhyl Versions:
@@ -130,6 +134,12 @@ Input:
                         Directory of fastq files (ending in .fastq, .fq, .fastq.gz, .fq.gz).
                         For paired-end data must be separated into files ending in _1/_2
                         or _R1/_R2 or _R1_001/_R2_001.
+  --fastq-files-as-links
+                        Link to the fastq files in Galaxy instead of making copies.
+                        This significantly speeds up SNVPhyl, but requires the Galaxy server
+                        to have direct access to fastq/ directory (e.g., same filesystem) and
+                        requires Galaxy to be configured with `allow_library_path_paste=True`.
+                        Useage of `--deploy-docker` enables this option by default [False]
   --fastq-history-name FASTQ_HISTORY_NAME
                         Galaxy history name for previously uploaded collection of fastq files.
 
@@ -141,7 +151,6 @@ Optional Parameters:
   --invalid-positions-file INVALID_POSITIONS_FILE
                         Tab-delimited file of positions to mask on the reference.
   --run-name RUN_NAME   Name of run added to output files [run]
-  --relative-snv-abundance RELATIVE_SNV_ABUNDANCE, --alternative-allele-ratio RELATIVE_SNV_ABUNDANCE
   --relative-snv-abundance RELATIVE_SNV_ABUNDANCE, --snv-abundance-ratio RELATIVE_SNV_ABUNDANCE,
     --alternative-allele-ratio RELATIVE_SNV_ABUNDANCE
                         Cutoff proportion of base coverage supporting a high quality variant
