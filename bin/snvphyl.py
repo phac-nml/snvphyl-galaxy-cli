@@ -10,13 +10,14 @@ from bioblend import galaxy
 from bioblend.galaxy import dataset_collections
 
 polling_time=10 # seconds
-library_upload_timeout=120
+library_upload_timeout=1800 # seconds
 use_newer_galaxy_api=False
 snvphyl_cli_version='1.3-prerelease'
 
 galaxy_api_key_name='--galaxy-api-key'
 
-snvphyl_docker_fastq_dir='/snvphyl-data/fastq'
+docker_fastq_dir='/snvphyl-data/fastq'
+use_docker_fastq_dir=False
 
 upload_fastqs_as_links=True
 
@@ -382,7 +383,11 @@ def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_uplo
 
     for name in fastqs_to_upload.iterkeys():
         fastq_file=fastqs_to_upload[name]
-        print 'Uploading as link file='+fastq_file
+        print 'Uploading as link '+fastq_file
+
+        if (use_docker_fastq_dir):
+            fastq_file=docker_fastq_dir+'/'+os.path.basename(fastq_file)
+
         response=gi.libraries.upload_from_galaxy_filesystem(library_id, fastq_file, file_type='fastqsanger', link_data_only='link_to_files')
         fastq_library_id=response[0]['id']
 
@@ -435,11 +440,8 @@ def upload_fastqs_library_paired(gi,history_id,library_id,fastq_paired):
         forward=entry['forward']
         reverse=entry['reverse']
 
-        fastq_file_forward=snvphyl_docker_fastq_dir+'/'+os.path.basename(forward)
-        fastq_file_reverse=snvphyl_docker_fastq_dir+'/'+os.path.basename(reverse)
-
-        fastqs_to_upload[name+'/forward']=fastq_file_forward
-        fastqs_to_upload[name+'/reverse']=fastq_file_reverse
+        fastqs_to_upload[name+'/forward']=forward
+        fastqs_to_upload[name+'/reverse']=reverse
         
     fastq_history_ids=upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload)
 
@@ -462,8 +464,7 @@ def upload_fastqs_library_single(gi,history_id,library_id,fastqs):
     single_elements=[]
 
     for name in fastqs.iterkeys():
-        fastq_file=snvphyl_docker_fastq_dir+'/'+os.path.basename(fastqs[name]['single'])
-        fastqs_to_upload[name]=fastq_file
+        fastqs_to_upload[name]=fastqs[name]['single']
 
     fastq_history_ids=upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload)
 
@@ -787,7 +788,7 @@ def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_versio
     :param with_docker_sudo: If true, prefix `sudo` to docker command.
     :param docker_cpus: Maximum number of CPUs docker should use.
     :param snvphyl_version_settings:  Settings for particular version of SNVPhyl to deploy.
-    :param fastq_dir:  The input fastq direcory. If true, the directory will be mounted in docker under the directory in snvphyl_docker_fastq_dir.
+    :param fastq_dir:  The input fastq direcory. If true, the directory will be mounted in docker under the directory in docker_fastq_dir.
 
     :return: A pair of (url,key. url and key are for the Galaxy instance in Docker.  Blocks until Galaxy is up and running. 
     """
@@ -812,9 +813,8 @@ def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_versio
     docker_command_line.extend(['--detach','--publish',str(docker_port)+':80'])
 
     if (fastq_dir is not None):
-        use_docker_fastq_dir=True
         fastq_dir_abs = os.path.abspath(fastq_dir)
-        docker_command_line.extend(['--volume',str(fastq_dir_abs)+':'+snvphyl_docker_fastq_dir])
+        docker_command_line.extend(['--volume',str(fastq_dir_abs)+':'+docker_fastq_dir])
 
     docker_command_line.append(docker_image)
 
@@ -858,6 +858,8 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
     """
 
     global use_newer_galaxy_api
+    global upload_fastqs_as_links
+    global use_docker_fastq_dir
 
     docker_id=None
 
@@ -872,7 +874,10 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
         raise Exception("Error: cannot specify --galaxy-url and --galaxy-api-key along with --deploy-docker")
     elif (deploy_docker):
 
-        upload_fastqs_as_links=True
+        # Speeds uploading of files by mounting fastq directory in Docker and linking to files
+        if (fastq_dir is not None):
+            upload_fastqs_as_links=True
+            use_docker_fastq_dir=True
 
         # Older versions of Galaxy have bugs preventing usage of 'invoke_workflow" over 'run_workflow'
         # For up to date Docker images of Galaxy, we can gurantee newer version, so use newer API methods.
