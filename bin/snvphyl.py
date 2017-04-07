@@ -870,6 +870,10 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
 
     upload_fastqs_as_links=fastq_files_as_links
 
+    # if uploading as links, need to use aboslute path to files when sending to Galaxy
+    if (upload_fastqs_as_links):
+        fastq_dir=os.path.abspath(fastq_dir)
+
     if (deploy_docker and (galaxy_url or galaxy_api_key)):
         raise Exception("Error: cannot specify --galaxy-url and --galaxy-api-key along with --deploy-docker")
     elif (deploy_docker):
