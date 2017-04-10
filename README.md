@@ -77,6 +77,21 @@ python bin/snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fas
 
 This assumes that the fastq files have been previously uploaded to Galaxy in a history named **fastq-history** and a dataset collection has been prepared as described in the [SNVPhyl Documentation](https://snvphyl.readthedocs.org/en/latest/user/usage/#preparing-sequence-reads)
 
+### Galaxy and `--fastq-files-as-links`
+
+The command-line option `--fastq-files-as-links` can be used to link to files when importing into Galaxy instead of making a copy.  This can reduce both running time and the space required.  However, this requires certain conditions to be satisifed on the Galaxy server.  Notably:
+
+1. The option `allow_library_path_paste` should be set to **True** within the Galaxy config file `config/galaxy.ini`.
+2. The fastq files should be in a directory accessible by both the `snvphyl.py` script and the Galaxy server using the same path.  E.g., `/input/data/fastq` should point to the same set of files both on the local machine and on the Galaxy server.
+
+If you are using a Docker instance of Galaxy that has been launched independently of the `snvphyl.py` script, then you will have to mount the fastq input directory within the Docker container as a data volume.  This can be accomplished with the `-v` option in Docker.  For example:
+
+```bash
+docker run -d -p 48888:80 -v /input/data/fastq:/input/data/fastq phacnml/snvphyl-galaxy-1.0.1
+```
+
+You will have to mount within Docker under the same path in order to satisfy condition (2) above.  Please see the [Docker volume documentation][] for more details on data volumes.
+
 # Detailed Usage
 
 ```
@@ -215,3 +230,4 @@ specific language governing permissions and limitations under the License.
 [Galaxy Docker]: https://github.com/bgruening/docker-galaxy-stable/
 [SNVPhyl Output]: http://snvphyl.readthedocs.org/en/latest/user/output/
 [SNVPhyl Galaxy]: http://snvphyl.readthedocs.org/en/latest/install/galaxy/#import-snvphyl-galaxy-workflows
+[Docker volume documentation]: https://docs.docker.com/engine/tutorials/dockervolumes/
