@@ -77,7 +77,7 @@ python bin/snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fas
 
 This assumes that the fastq files have been previously uploaded to Galaxy in a history named **fastq-history** and a dataset collection has been prepared as described in the [SNVPhyl Documentation](https://snvphyl.readthedocs.org/en/latest/user/usage/#preparing-sequence-reads)
 
-### Galaxy and `--fastq-files-as-links`
+### Galaxy and --fastq-files-as-links
 
 The command-line option `--fastq-files-as-links` can be used to link to files when importing into Galaxy instead of making a copy.  This can reduce both running time and the space required.  However, this requires certain conditions to be satisifed on the Galaxy server.  Notably:
 
