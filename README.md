@@ -139,7 +139,7 @@ Input:
                         This significantly speeds up SNVPhyl, but requires the Galaxy server
                         to have direct access to fastq/ directory (e.g., same filesystem) and
                         requires Galaxy to be configured with `allow_library_path_paste=True`.
-                        Useage of `--deploy-docker` enables this option by default [False]
+                        Usage of `--deploy-docker` enables this option by default [False]
   --fastq-history-name FASTQ_HISTORY_NAME
                         Galaxy history name for previously uploaded collection of fastq files.
 

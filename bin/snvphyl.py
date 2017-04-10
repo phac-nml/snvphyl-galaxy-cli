@@ -1256,7 +1256,7 @@ if __name__ == '__main__':
 
     # Requires either this argument for direct upload of fastq files
     input_group.add_argument('--fastq-dir', action="store", dest="fastq_dir", required=False, help='Directory of fastq files (ending in .fastq, .fq, .fastq.gz, .fq.gz). For paired-end data must be separated into files ending in _1/_2 or _R1/_R2 or _R1_001/_R2_001.')
-    input_group.add_argument('--fastq-files-as-links', action="store_true", dest="fastq_files_as_links", required=False, help='Link to the fastq files in Galaxy instead of making copies.  This significantly speeds up SNVPhyl, but requires the Galaxy server to have direct access to fastq/ directory (e.g., same filesystem) and requires Galaxy to be configured with `allow_library_path_paste=True`. Useage of `--deploy-docker` enables this option by default [False]')
+    input_group.add_argument('--fastq-files-as-links', action="store_true", dest="fastq_files_as_links", required=False, help='Link to the fastq files in Galaxy instead of making copies.  This significantly speeds up SNVPhyl, but requires the Galaxy server to have direct access to fastq/ directory (e.g., same filesystem) and requires Galaxy to be configured with `allow_library_path_paste=True`. Usage of `--deploy-docker` enables this option by default [False]')
     # Or this argument for using already uploaded files
     input_group.add_argument('--fastq-history-name', action="store", dest="fastq_history_name", required=False, help='Galaxy history name for previously uploaded collection of fastq files.')
 
