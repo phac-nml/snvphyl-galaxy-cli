@@ -10,10 +10,16 @@ from bioblend import galaxy
 from bioblend.galaxy import dataset_collections
 
 polling_time=10 # seconds
+library_upload_timeout=1800 # seconds
 use_newer_galaxy_api=False
-snvphyl_cli_version='1.2'
+snvphyl_cli_version='1.3'
 
 galaxy_api_key_name='--galaxy-api-key'
+
+docker_fastq_dir='/snvphyl-data/fastq'
+use_docker_fastq_dir=False
+
+upload_fastqs_as_links=True
 
 def get_script_path():
     """
@@ -278,7 +284,7 @@ def structure_fastqs(fastq_dir):
     # check data structure
     fastq_single={}
     fastq_paired={}
-    print "\nStructuring data in directory '"+fastq_dir+"' like:"
+    print "Structuring data in directory '"+fastq_dir+"' like:"
     for name in sorted(fastq_files.iterkeys()):
         entry=fastq_files[name]
         single=entry.get('single')
@@ -323,9 +329,33 @@ def find_workflow_steps(tool_id,steps):
 
     return matches
 
+def upload_fastqs_single(gi,history_id,fastq_single):
+    """
+    Uploads the given single-end fastq files to a Galaxy history.
+
+    :param gi:  Galaxy instance.
+    :param history_id:  History id to upload into.
+    :param fastq_single: Map of single-end fastq names to 'single' paths for files to upload.
+
+    :return:  Map of fastq names to history ids in Galaxy for each file.
+    """
+
+    single_elements=[]
+
+    for name in sorted(fastq_single.iterkeys()):
+        fastq_file=fastq_single[name]['single']
+        
+        print 'Uploading '+fastq_file
+        file_galaxy=gi.tools.upload_file(fastq_file,history_id, file_type='fastqsanger')
+        file_id=file_galaxy['outputs'][0]['id']
+
+        single_elements.append(dataset_collections.HistoryDatasetElement(name=name,id=file_id))
+
+    return single_elements
+
 def upload_fastq_collection_single(gi,history_id,fastq_single):
     """
-    Uploads given fastq files to the Galaxy history.
+    Uploads given fastq files to the Galaxy history and builds a dataset collection.
 
     :param gi:  Galaxy instance.
     :param history_Id:  History id to upload into.
@@ -335,14 +365,11 @@ def upload_fastq_collection_single(gi,history_id,fastq_single):
     """
 
     single_elements=[]
-    for name in sorted(fastq_single.iterkeys()):
-        fastq_file=fastq_single[name]['single']
-        
-        print 'Uploading '+fastq_file
-        file_galaxy=gi.tools.upload_file(fastq_file,history_id, file_type='fastqsanger')
-        file_id=file_galaxy['outputs'][0]['id']
-
-        single_elements.append(dataset_collections.HistoryDatasetElement(name=name,id=file_id))
+    if (upload_fastqs_as_links):
+        created_library=gi.libraries.create_library("SNVPhyl Library Dataset-"+str(time.time()))
+        single_elements=upload_fastqs_library_single(gi,history_id,created_library['id'],fastq_single)
+    else:
+        single_elements=upload_fastqs_single(gi,history_id,fastq_single)
 
     # construct single collection
     single_collection_name="single_datasets"
@@ -358,6 +385,171 @@ def upload_fastq_collection_single(gi,history_id,fastq_single):
 
     return collection_response_single['id']
 
+def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload):
+    """
+    Uploads the given fastq files to a Galaxy History via a Dataset Library.
+    This is required for linking instead of copying, as that can only be done via a Dataset Library.
+
+    :param gi:  Galaxy instance.
+    :param history_id:  History id to upload into.
+    :param library_id:  Library id to upload into.
+    :param fastqs_to_upload: Map of fastq names to paths for files to upload.
+
+    :return:  Map of fastq names to history ids in Galaxy for each file.  Will block until Galaxy is finished processing.
+    """
+
+    uploaded_ids=[]
+    fastq_library_ids={}
+    fastq_history_ids={}
+
+    for name in fastqs_to_upload.iterkeys():
+        fastq_file=fastqs_to_upload[name]
+        print 'Uploading as link '+fastq_file
+
+        if (use_docker_fastq_dir):
+            fastq_file=docker_fastq_dir+'/'+os.path.basename(fastq_file)
+
+        response=gi.libraries.upload_from_galaxy_filesystem(library_id, fastq_file, file_type='fastqsanger', link_data_only='link_to_files')
+        fastq_library_id=response[0]['id']
+
+        fastq_library_ids[fastq_library_id] = name
+
+    sys.stdout.write("Waiting for library datasets to finish processing...")
+    sys.stdout.flush()
+
+    finished_uploading=False
+    uploaded_ids=fastq_library_ids.keys()
+    reduced_uploaded_ids=uploaded_ids
+    time_start_uploading=time.time()
+    while (not finished_uploading):
+        finished_uploading=True
+
+        for dataset in uploaded_ids: 
+            state=gi.libraries.show_dataset(library_id,dataset)['state']
+            if (state == 'error'):
+                raise Exception("Error uploading fastq file ("+fastq_library_ids[dataset]+", "+dataset+") to Galaxy Library "+library_id)
+            elif (state == 'ok'):
+                uploaded_history=gi.histories.upload_dataset_from_library(history_id,dataset)
+                dataset_history_id=uploaded_history['id']
+
+                name=fastq_library_ids[dataset]
+                fastq_history_ids[name]=dataset_history_id
+
+                reduced_uploaded_ids=list(reduced_uploaded_ids)
+                reduced_uploaded_ids.remove(dataset)
+            else:
+                finished_uploading=False
+
+        if (time.time()-time_start_uploading > library_upload_timeout):
+            raise Exception("Error: Maximum upload timout of " + str(library_upload_timeout) + "s reached")
+
+        uploaded_ids=reduced_uploaded_ids
+        sys.stdout.write(str(len(uploaded_ids))+'.')
+        sys.stdout.flush()
+        time.sleep(2)
+    print 'done'
+    
+    return fastq_history_ids
+
+def upload_fastqs_library_paired(gi,history_id,library_id,fastq_paired):
+    """
+    Uploads the given paired-end fastq files to a Galaxy history via a dataset library.
+
+    :param gi:  Galaxy instance.
+    :param history_id:  History id to upload into.
+    :param library_id:  Library id to upload into.
+    :param fastq_paired: Map of paired-end fastq names to forward/reverse paths for files to upload.
+
+    :return:  Map of fastq names to history ids in Galaxy for each file.
+    """
+
+    fastqs_to_upload={}
+    paired_elements=[]
+
+    for name in fastq_paired.iterkeys():
+        entry=fastq_paired[name]
+        forward=entry['forward']
+        reverse=entry['reverse']
+
+        fastqs_to_upload[name+'/forward']=forward
+        fastqs_to_upload[name+'/reverse']=reverse
+        
+    fastq_history_ids=upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload)
+
+    # Convert to paired-end data structure
+    for name in sorted(fastq_paired.iterkeys()):
+        paired_elements.append(dataset_collections.CollectionElement(
+            name=name,
+            type='paired',
+            elements=[
+                dataset_collections.HistoryDatasetElement(name='forward', id=fastq_history_ids[name+'/forward']),
+                dataset_collections.HistoryDatasetElement(name='reverse', id=fastq_history_ids[name+'/reverse'])
+            ]
+        ))
+    
+    return paired_elements
+
+def upload_fastqs_library_single(gi,history_id,library_id,fastqs):
+    """
+    Uploads the given single-end fastq files to a Galaxy history via a dataset library.
+
+    :param gi:  Galaxy instance.
+    :param history_id:  History id to upload into.
+    :param library_id:  Library id to upload into.
+    :param fastqs: Map of single-end fastq names to 'single' paths for files to upload.
+
+    :return:  Map of fastq names to history ids in Galaxy for each file.
+    """
+
+    fastqs_to_upload={}
+    single_elements=[]
+
+    for name in fastqs.iterkeys():
+        fastqs_to_upload[name]=fastqs[name]['single']
+
+    fastq_history_ids=upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload)
+
+    for name in sorted(fastqs.iterkeys()):
+        single_elements.append(dataset_collections.HistoryDatasetElement(name=name,id=fastq_history_ids[name]))
+
+    return single_elements
+
+def upload_fastq_history_paired(gi,history_id,fastq_paired):
+    """
+    Uploads the given paired-end fastq files to a Galaxy history.
+
+    :param gi:  Galaxy instance.
+    :param history_id:  History id to upload into.
+    :param fastqs: Map of paired-end fastq names to forward/reverse paths for files to upload.
+
+    :return:  Map of fastq names to history ids in Galaxy for each file.
+    """
+
+    paired_elements=[]
+
+    for name in sorted(fastq_paired.iterkeys()):
+        entry=fastq_paired[name]
+        forward=entry['forward']
+        reverse=entry['reverse']
+        
+        print 'Uploading as copy '+forward
+        forward_galaxy=gi.tools.upload_file(forward,history_id, file_type='fastqsanger')
+        forward_id=forward_galaxy['outputs'][0]['id']
+        print 'Uploading as copy '+reverse
+        reverse_galaxy=gi.tools.upload_file(reverse,history_id, file_type='fastqsanger')
+        reverse_id=reverse_galaxy['outputs'][0]['id']
+
+        paired_elements.append(dataset_collections.CollectionElement(
+            name=name,
+            type='paired',
+            elements=[
+                dataset_collections.HistoryDatasetElement(name='forward', id=forward_id),
+                dataset_collections.HistoryDatasetElement(name='reverse', id=reverse_id)
+            ]
+        ))
+
+    return paired_elements
+
 def upload_fastq_collection_paired(gi,history_id,fastq_paired):
     """
     Uploads given fastq files to the Galaxy history.
@@ -370,26 +562,12 @@ def upload_fastq_collection_paired(gi,history_id,fastq_paired):
     """
 
     paired_elements=[]
-    for name in sorted(fastq_paired.iterkeys()):
-        entry=fastq_paired[name]
-        forward=entry['forward']
-        reverse=entry['reverse']
-        
-        print 'Uploading '+forward
-        forward_galaxy=gi.tools.upload_file(forward,history_id, file_type='fastqsanger')
-        forward_id=forward_galaxy['outputs'][0]['id']
-        print 'Uploading '+reverse
-        reverse_galaxy=gi.tools.upload_file(reverse,history_id, file_type='fastqsanger')
-        reverse_id=reverse_galaxy['outputs'][0]['id']
 
-        paired_elements.append(dataset_collections.CollectionElement(
-            name=name,
-            type='paired',
-            elements=[
-                dataset_collections.HistoryDatasetElement(name='forward', id=forward_id),
-                dataset_collections.HistoryDatasetElement(name='reverse', id=reverse_id)
-            ]
-        ))
+    if (upload_fastqs_as_links):
+        created_library=gi.libraries.create_library("SNVPhyl Library Dataset-"+str(time.time()))
+        paired_elements=upload_fastqs_library_paired(gi,history_id,created_library['id'],fastq_paired)
+    else:
+        paired_elements=upload_fastq_history_paired(gi,history_id,fastq_paired)
 
     # construct paired collection
     paired_collection_name="paired_datasets"
@@ -579,6 +757,15 @@ def write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_d
             print >> sys.stderr, repr(e) + ": " + str(e)
             
 def write_galaxy_provenance(gi,history_id,output_dir):
+    """
+    Writes provenance information from Galaxy to JSON output files.
+
+    :param history_id:  The history id in Galaxy to examine.
+    :param output_dir:  The directory to write the output files.
+
+    :return: None.
+    """
+
     histories_provenance_file=output_dir+"/history-provenance.json"
     dataset_provenance_file=output_dir+"/dataset-provenance.json"
     histories_prov_fh=open(histories_provenance_file,'w')
@@ -652,15 +839,17 @@ def run_snvphyl_workflow_older_galaxy(gi,snvphyl_workflow_id,history_id,dataset_
         else:
             raise e
 
-def handle_deploy_docker(docker_port,with_docker_sudo,snvphyl_version_settings):
+def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_version_settings,fastq_dir):
     """
     Deploys a Docker instance of Galaxy with the given snvphyl version workflow tools installed
 
     :param docker_port: Port to forward into Docker.
     :param with_docker_sudo: If true, prefix `sudo` to docker command.
+    :param docker_cpus: Maximum number of CPUs docker should use.
     :param snvphyl_version_settings:  Settings for particular version of SNVPhyl to deploy.
+    :param fastq_dir:  The input fastq direcory. If true, the directory will be mounted in docker under the directory in docker_fastq_dir.
 
-    :return: A pair of (url,key) for the Galaxy instance in Docker.  Blocks until Galaxy is up and running.
+    :return: A pair of (url,key. url and key are for the Galaxy instance in Docker.  Blocks until Galaxy is up and running. 
     """
 
     if ('dockerContainer' not in snvphyl_version_settings):
@@ -675,7 +864,18 @@ def handle_deploy_docker(docker_port,with_docker_sudo,snvphyl_version_settings):
     else:
         docker_command_line = []
 
-    docker_command_line.extend(['docker','run','-d','-p',str(docker_port)+':80',docker_image])
+    docker_command_line.extend(['docker','run'])
+
+    if (docker_cpus > 0):
+        docker_command_line.extend(['--cpus',str(docker_cpus),'--env','SLURM_CPUS='+str(docker_cpus)])
+
+    docker_command_line.extend(['--detach','--publish',str(docker_port)+':80'])
+
+    if (fastq_dir is not None):
+        fastq_dir_abs = os.path.abspath(fastq_dir)
+        docker_command_line.extend(['--volume',str(fastq_dir_abs)+':'+docker_fastq_dir])
+
+    docker_command_line.append(docker_image)
 
     print "\nDeploying Docker Container"
     print "=========================="
@@ -706,8 +906,8 @@ def undeploy_docker_with_id(docker_id, with_docker_sudo):
     print "Running '"+" ".join(docker_command_line)+"'"
     subprocess.call(docker_command_line)
 
-def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, relative_snv_abundance, min_coverage, min_mean_mapping,
-	repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
+def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, docker_cpus, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_files_as_links, fastq_history_name, reference_file, run_name, 
+         relative_snv_abundance, min_coverage, min_mean_mapping, repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method, wrapping around 'main_galaxy' to start up a docker image if needed.
 
@@ -717,6 +917,8 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
     """
 
     global use_newer_galaxy_api
+    global upload_fastqs_as_links
+    global use_docker_fastq_dir
 
     docker_id=None
 
@@ -725,9 +927,19 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
     if (not output_dir):
         raise Exception("Error: must specify an --output-dir")
 
+    upload_fastqs_as_links=fastq_files_as_links
+
+    # if uploading as links, need to use aboslute path to files when sending to Galaxy
+    if (upload_fastqs_as_links):
+        fastq_dir=os.path.abspath(fastq_dir)
+
     if (deploy_docker and (galaxy_url or galaxy_api_key)):
         raise Exception("Error: cannot specify --galaxy-url and --galaxy-api-key along with --deploy-docker")
     elif (deploy_docker):
+
+        if (fastq_dir is not None):
+            upload_fastqs_as_links=True
+            use_docker_fastq_dir=True
 
         # Older versions of Galaxy have bugs preventing usage of 'invoke_workflow" over 'run_workflow'
         # For up to date Docker images of Galaxy, we can gurantee newer version, so use newer API methods.
@@ -741,7 +953,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
             os.mkdir(output_dir)
 
         docker_begin_time=time.time()
-        (url,key,docker_id)=handle_deploy_docker(docker_port,with_docker_sudo,snvphyl_version_settings[snvphyl_version])
+        (url,key,docker_id)=handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_version_settings[snvphyl_version],fastq_dir)
         print "Took %0.2f minutes to deploy docker" % ((time.time()-docker_begin_time)/60)
 
         try:
@@ -1029,6 +1241,7 @@ if __name__ == '__main__':
     docker_group.add_argument('--deploy-docker', action="store_true", dest="deploy_docker", required=False, help='Deply an instance of Galaxy using Docker.')
     docker_group.add_argument('--keep-docker', action="store_true", dest="keep_deployed_docker", required=False, help='Keep docker image running after pipeline finishes.')
     docker_group.add_argument('--docker-port', action="store", dest="docker_port", default=48888, required=False, help='Port for deployment of Docker instance [48888].')
+    docker_group.add_argument('--docker-cpus', action="store", type=int, dest="docker_cpus", default=-1, required=False, help='Limit on number of CPUs docker should use. The value -1 means use all CPUs available on the machine [-1]')
     docker_group.add_argument('--with-docker-sudo', action="store_true", dest="with_docker_sudo", required=False, help='Run `docker with `sudo` [False].')
 
     snvphyl_version_group = parser.add_argument_group('SNVPhyl Versions')
@@ -1043,6 +1256,7 @@ if __name__ == '__main__':
 
     # Requires either this argument for direct upload of fastq files
     input_group.add_argument('--fastq-dir', action="store", dest="fastq_dir", required=False, help='Directory of fastq files (ending in .fastq, .fq, .fastq.gz, .fq.gz). For paired-end data must be separated into files ending in _1/_2 or _R1/_R2 or _R1_001/_R2_001.')
+    input_group.add_argument('--fastq-files-as-links', action="store_true", dest="fastq_files_as_links", required=False, help='Link to the fastq files in Galaxy instead of making copies.  This significantly speeds up SNVPhyl, but requires the Galaxy server to have direct access to fastq/ directory (e.g., same filesystem) and requires Galaxy to be configured with `allow_library_path_paste=True`. Usage of `--deploy-docker` enables this option by default [False]')
     # Or this argument for using already uploaded files
     input_group.add_argument('--fastq-history-name', action="store", dest="fastq_history_name", required=False, help='Galaxy history name for previously uploaded collection of fastq files.')
 

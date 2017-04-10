@@ -77,16 +77,32 @@ python bin/snvphyl.py --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fas
 
 This assumes that the fastq files have been previously uploaded to Galaxy in a history named **fastq-history** and a dataset collection has been prepared as described in the [SNVPhyl Documentation](https://snvphyl.readthedocs.org/en/latest/user/usage/#preparing-sequence-reads)
 
+### Galaxy and --fastq-files-as-links
+
+The command-line option `--fastq-files-as-links` can be used to link to files when importing into Galaxy instead of making a copy.  This can reduce both running time and the space required.  However, this requires certain conditions to be satisifed on the Galaxy server.  Notably:
+
+1. The option `allow_library_path_paste` should be set to **True** within the Galaxy config file `config/galaxy.ini`.
+2. The fastq files should be in a directory accessible by both the `snvphyl.py` script and the Galaxy server using the same path.  E.g., `/input/data/fastq` should point to the same set of files both on the local machine and on the Galaxy server.
+
+If you are using a Docker instance of Galaxy that has been launched independently of the `snvphyl.py` script, then you will have to mount the fastq input directory within the Docker container as a data volume.  This can be accomplished with the `-v` option in Docker.  For example:
+
+```bash
+docker run -d -p 48888:80 -v /input/data/fastq:/input/data/fastq phacnml/snvphyl-galaxy-1.0.1
+```
+
+You will have to mount within Docker under the same path in order to satisfy condition (2) above.  Please see the [Docker volume documentation][] for more details on data volumes.
+
 # Detailed Usage
 
 ```
 usage: snvphyl.py [-h] [--galaxy-url GALAXY_URL]
                   [--galaxy-api-key GALAXY_API_KEY] [--deploy-docker]
                   [--keep-docker] [--docker-port DOCKER_PORT]
-                  [--with-docker-sudo] [--snvphyl-version SNVPHYL_VERSION]
+                  [--docker-cpus DOCKER_CPUS] [--with-docker-sudo]
+                  [--snvphyl-version SNVPHYL_VERSION]
                   [--workflow-id WORKFLOW_ID]
                   [--reference-file REFERENCE_FILE] [--output-dir OUTPUT_DIR]
-                  [--fastq-dir FASTQ_DIR]
+                  [--fastq-dir FASTQ_DIR] [--fastq-files-as-links]
                   [--fastq-history-name FASTQ_HISTORY_NAME]
                   [--invalid-positions-file INVALID_POSITIONS_FILE]
                   [--run-name RUN_NAME]
@@ -115,6 +131,9 @@ Docker (runs SNVPhyl in local Docker container):
   --keep-docker         Keep docker image running after pipeline finishes.
   --docker-port DOCKER_PORT
                         Port for deployment of Docker instance [48888].
+  --docker-cpus DOCKER_CPUS
+                        Limit on number of CPUs docker should use. The value -1 means
+                        use all CPUs available on the machine [-1]
   --with-docker-sudo    Run `docker with `sudo` [False].
 
 SNVPhyl Versions:
@@ -130,6 +149,12 @@ Input:
                         Directory of fastq files (ending in .fastq, .fq, .fastq.gz, .fq.gz).
                         For paired-end data must be separated into files ending in _1/_2
                         or _R1/_R2 or _R1_001/_R2_001.
+  --fastq-files-as-links
+                        Link to the fastq files in Galaxy instead of making copies.
+                        This significantly speeds up SNVPhyl, but requires the Galaxy server
+                        to have direct access to fastq/ directory (e.g., same filesystem) and
+                        requires Galaxy to be configured with `allow_library_path_paste=True`.
+                        Usage of `--deploy-docker` enables this option by default [False]
   --fastq-history-name FASTQ_HISTORY_NAME
                         Galaxy history name for previously uploaded collection of fastq files.
 
@@ -141,7 +166,6 @@ Optional Parameters:
   --invalid-positions-file INVALID_POSITIONS_FILE
                         Tab-delimited file of positions to mask on the reference.
   --run-name RUN_NAME   Name of run added to output files [run]
-  --relative-snv-abundance RELATIVE_SNV_ABUNDANCE, --alternative-allele-ratio RELATIVE_SNV_ABUNDANCE
   --relative-snv-abundance RELATIVE_SNV_ABUNDANCE, --snv-abundance-ratio RELATIVE_SNV_ABUNDANCE,
     --alternative-allele-ratio RELATIVE_SNV_ABUNDANCE
                         Cutoff proportion of base coverage supporting a high quality variant
@@ -206,3 +230,4 @@ specific language governing permissions and limitations under the License.
 [Galaxy Docker]: https://github.com/bgruening/docker-galaxy-stable/
 [SNVPhyl Output]: http://snvphyl.readthedocs.org/en/latest/user/output/
 [SNVPhyl Galaxy]: http://snvphyl.readthedocs.org/en/latest/install/galaxy/#import-snvphyl-galaxy-workflows
+[Docker volume documentation]: https://docs.docker.com/engine/tutorials/dockervolumes/

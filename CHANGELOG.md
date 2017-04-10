@@ -1,5 +1,11 @@
 # Changes
 
+## 1.3
+
+* Added `--docker-cpus` enabling control over the maximum number of cpus Docker will use when running SNVPhyl.
+* Added `--fastq-files-as-links` which will link to fastq files in Galaxy instead of making a copy.  This drastically reduces both runtime and storage requirements, but requires Galaxy server to have access to the same filesystem as the local machine.
+  * This is enabled by default when using Docker, but required small updates to all the SNVPhyl Docker images to enable linking to files in Galaxy.
+
 ## 1.2
 
 * Added additional timing measurements.
