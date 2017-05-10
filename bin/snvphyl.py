@@ -839,7 +839,7 @@ def run_snvphyl_workflow_older_galaxy(gi,snvphyl_workflow_id,history_id,dataset_
         else:
             raise e
 
-def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_version_settings,fastq_dir):
+def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_version_settings,fastq_dir,copy_fastq_files_to_docker):
     """
     Deploys a Docker instance of Galaxy with the given snvphyl version workflow tools installed
 
@@ -848,6 +848,7 @@ def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_versio
     :param docker_cpus: Maximum number of CPUs docker should use.
     :param snvphyl_version_settings:  Settings for particular version of SNVPhyl to deploy.
     :param fastq_dir:  The input fastq direcory. If true, the directory will be mounted in docker under the directory in docker_fastq_dir.
+    :param copy_fastq_files_to_docker:  Whether or not to copy fastq files to docker.
 
     :return: A pair of (url,key. url and key are for the Galaxy instance in Docker.  Blocks until Galaxy is up and running. 
     """
@@ -871,7 +872,7 @@ def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_versio
 
     docker_command_line.extend(['--detach','--publish',str(docker_port)+':80'])
 
-    if (fastq_dir is not None):
+    if (fastq_dir is not None and not copy_fastq_files_to_docker):
         fastq_dir_abs = os.path.abspath(fastq_dir)
         docker_command_line.extend(['--volume',str(fastq_dir_abs)+':'+docker_fastq_dir])
 
@@ -906,7 +907,7 @@ def undeploy_docker_with_id(docker_id, with_docker_sudo):
     print "Running '"+" ".join(docker_command_line)+"'"
     subprocess.call(docker_command_line)
 
-def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, docker_cpus, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_files_as_links, fastq_history_name, reference_file, run_name, 
+def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, copy_fastq_files_to_docker, docker_port, docker_cpus, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_files_as_links, fastq_history_name, reference_file, run_name, 
          relative_snv_abundance, min_coverage, min_mean_mapping, repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method, wrapping around 'main_galaxy' to start up a docker image if needed.
@@ -930,14 +931,16 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
     upload_fastqs_as_links=fastq_files_as_links
 
     # if uploading as links, need to use aboslute path to files when sending to Galaxy
-    if (upload_fastqs_as_links):
+    if (upload_fastqs_as_links and copy_fastq_files_to_docker):
+        raise Exception("Error: cannot enable both --fastq-files-as-links and --copy-fastq-files-to-docker")
+    elif (upload_fastqs_as_links):
         fastq_dir=os.path.abspath(fastq_dir)
 
     if (deploy_docker and (galaxy_url or galaxy_api_key)):
         raise Exception("Error: cannot specify --galaxy-url and --galaxy-api-key along with --deploy-docker")
     elif (deploy_docker):
 
-        if (fastq_dir is not None):
+        if (not copy_fastq_files_to_docker and fastq_dir is not None):
             upload_fastqs_as_links=True
             use_docker_fastq_dir=True
 
@@ -953,7 +956,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
             os.mkdir(output_dir)
 
         docker_begin_time=time.time()
-        (url,key,docker_id)=handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_version_settings[snvphyl_version],fastq_dir)
+        (url,key,docker_id)=handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_version_settings[snvphyl_version],fastq_dir,copy_fastq_files_to_docker)
         print "Took %0.2f minutes to deploy docker" % ((time.time()-docker_begin_time)/60)
 
         try:
@@ -1238,7 +1241,8 @@ if __name__ == '__main__':
 
     # Or this argument to deply a particular Galaxy instance with Docker on the given port
     docker_group = parser.add_argument_group('Docker (runs SNVPhyl in local Docker container)')
-    docker_group.add_argument('--deploy-docker', action="store_true", dest="deploy_docker", required=False, help='Deply an instance of Galaxy using Docker.')
+    docker_group.add_argument('--deploy-docker', action="store_true", dest="deploy_docker", required=False, help='Deploy an instance of Galaxy using Docker.')
+    docker_group.add_argument('--copy-fastq-files-to-docker', action="store_true", dest="copy_fastq_files_to_docker", required=False, help='Disables linking to fastq files in Galaxy after docker is deployed. This is useful if you encounter permissions issues with docker volumes, or wish to pass fastq files as symbolic links [False].')
     docker_group.add_argument('--keep-docker', action="store_true", dest="keep_deployed_docker", required=False, help='Keep docker image running after pipeline finishes.')
     docker_group.add_argument('--docker-port', action="store", dest="docker_port", default=48888, required=False, help='Port for deployment of Docker instance [48888].')
     docker_group.add_argument('--docker-cpus', action="store", type=int, dest="docker_cpus", default=-1, required=False, help='Limit on number of CPUs docker should use. The value -1 means use all CPUs available on the machine [-1]')
