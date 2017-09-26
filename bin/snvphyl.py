@@ -839,13 +839,14 @@ def run_snvphyl_workflow_older_galaxy(gi,snvphyl_workflow_id,history_id,dataset_
         else:
             raise e
 
-def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_version_settings,fastq_dir,copy_fastq_files_to_docker):
+def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,docker_other_options,snvphyl_version_settings,fastq_dir,copy_fastq_files_to_docker):
     """
     Deploys a Docker instance of Galaxy with the given snvphyl version workflow tools installed
 
     :param docker_port: Port to forward into Docker.
     :param with_docker_sudo: If true, prefix `sudo` to docker command.
     :param docker_cpus: Maximum number of CPUs docker should use.
+    :param docker_other_options: Set other docker options here.
     :param snvphyl_version_settings:  Settings for particular version of SNVPhyl to deploy.
     :param fastq_dir:  The input fastq direcory. If true, the directory will be mounted in docker under the directory in docker_fastq_dir.
     :param copy_fastq_files_to_docker:  Whether or not to copy fastq files to docker.
@@ -875,6 +876,9 @@ def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_versio
     if (fastq_dir is not None and not copy_fastq_files_to_docker):
         fastq_dir_abs = os.path.abspath(fastq_dir)
         docker_command_line.extend(['--volume',str(fastq_dir_abs)+':'+docker_fastq_dir])
+
+    if (docker_other_options is not None):
+        docker_command_line.extend(docker_other_options.split())
 
     docker_command_line.append(docker_image)
 
@@ -907,7 +911,7 @@ def undeploy_docker_with_id(docker_id, with_docker_sudo):
     print "Running '"+" ".join(docker_command_line)+"'"
     subprocess.call(docker_command_line)
 
-def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, copy_fastq_files_to_docker, docker_port, docker_cpus, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_files_as_links, fastq_history_name, reference_file, run_name, 
+def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, copy_fastq_files_to_docker, docker_port, docker_cpus, docker_other_options, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_files_as_links, fastq_history_name, reference_file, run_name, 
          relative_snv_abundance, min_coverage, min_mean_mapping, repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method, wrapping around 'main_galaxy' to start up a docker image if needed.
@@ -956,7 +960,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, co
             os.mkdir(output_dir)
 
         docker_begin_time=time.time()
-        (url,key,docker_id)=handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_version_settings[snvphyl_version],fastq_dir,copy_fastq_files_to_docker)
+        (url,key,docker_id)=handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,docker_other_options,snvphyl_version_settings[snvphyl_version],fastq_dir,copy_fastq_files_to_docker)
         print "Took %0.2f minutes to deploy docker" % ((time.time()-docker_begin_time)/60)
 
         try:
@@ -1246,6 +1250,7 @@ if __name__ == '__main__':
     docker_group.add_argument('--keep-docker', action="store_true", dest="keep_deployed_docker", required=False, help='Keep docker image running after pipeline finishes.')
     docker_group.add_argument('--docker-port', action="store", dest="docker_port", default=48888, required=False, help='Port for deployment of Docker instance [48888].')
     docker_group.add_argument('--docker-cpus', action="store", type=int, dest="docker_cpus", default=-1, required=False, help='Limit on number of CPUs docker should use. The value -1 means use all CPUs available on the machine [-1]')
+    docker_group.add_argument('--docker-other-options', action="store", dest="docker_other_options", required=False, help='Other docker options can be passed here. These will be directly passed to the `docker` command.')
     docker_group.add_argument('--with-docker-sudo', action="store_true", dest="with_docker_sudo", required=False, help='Run `docker with `sudo` [False].')
 
     snvphyl_version_group = parser.add_argument_group('SNVPhyl Versions')

@@ -134,6 +134,9 @@ Docker (runs SNVPhyl in local Docker container):
   --docker-cpus DOCKER_CPUS
                         Limit on number of CPUs docker should use. The value -1 means
                         use all CPUs available on the machine [-1]
+  --docker-other-options DOCKER_OTHER_OPTIONS
+                        Other docker options can be passed here. These will be directly passed
+			to the `docker` command.
   --with-docker-sudo    Run `docker with `sudo` [False].
 
 SNVPhyl Versions:
