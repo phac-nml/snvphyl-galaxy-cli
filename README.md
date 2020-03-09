@@ -134,6 +134,9 @@ Docker (runs SNVPhyl in local Docker container):
   --docker-cpus DOCKER_CPUS
                         Limit on number of CPUs docker should use. The value -1 means
                         use all CPUs available on the machine [-1]
+  --docker-other-options DOCKER_OTHER_OPTIONS
+                        Other docker options can be passed here. These will be directly passed
+			to the `docker` command.
   --with-docker-sudo    Run `docker with `sudo` [False].
 
 SNVPhyl Versions:
@@ -205,7 +208,7 @@ Example:
 
 # Citation
 
-Aaron Petkau, Philip Mabon, Cameron Sieffert, Natalie Knox, Jennifer Cabral, Mariam Iskander, Mark Iskander, Kelly Weedmark, Rahat Zaheer, Lee S. Katz, Celine Nadon, Aleisha Reimer, Eduardo Taboada, Robert G. Beiko, William Hsiao, Fiona Brinkman, Morag Graham, The IRIDA Consortium, Gary Van Domselaar. 2016. [SNVPhyl: A Single Nucleotide Variant Phylogenomics pipeline for microbial genomic epidemiology](http://biorxiv.org/content/early/2016/12/10/092940). bioRxiv doi: http://dx.doi.org/10.1101/092940.
+Petkau A, Mabon P, Sieffert C, Knox N, Cabral J, Iskander M, Iskander M, Weedmark K, Zaheer R, Katz L, Nadon C, Reimer A, Taboada E, Beiko R, Hsiao W, Brinkman F, Graham M, Van Domselaar G. [SNVPhyl: a single nucleotide variant phylogenomics pipeline for microbial genomic epidemiology](http://dx.doi.org/10.1099/mgen.0.000116). 08/06/2017. *M Gen* 3(6): doi:[10.1099/mgen.0.000116](https://doi.org/10.1099/mgen.0.000116).
 
 # Legal
 

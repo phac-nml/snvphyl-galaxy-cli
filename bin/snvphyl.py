@@ -1,6 +1,13 @@
 #!/usr/bin/env python
+
+# python2/3 compatability
+from __future__ import print_function
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
+
 import argparse, sys, os, traceback, sys, string, json, datetime, time, subprocess, re
-import urllib2
 from socket import error as SocketError
 from distutils.version import LooseVersion
 import errno
@@ -12,7 +19,7 @@ from bioblend.galaxy import dataset_collections
 polling_time=10 # seconds
 library_upload_timeout=1800 # seconds
 use_newer_galaxy_api=False
-snvphyl_cli_version='1.3'
+snvphyl_cli_version='1.4-prerelease'
 
 galaxy_api_key_name='--galaxy-api-key'
 
@@ -45,7 +52,7 @@ def get_command_line_string():
     except ValueError:
         pass
 
-    return " ".join(command_line_list) 
+    return " ".join(command_line_list)
 
 def get_git_commit():
     """
@@ -62,8 +69,7 @@ def get_git_commit():
 
     try:
         DEVNULL = open(os.devnull, 'w')
-        git_commit_for_code=subprocess.check_output(git_command_line,stderr=DEVNULL).rstrip()
-        
+        git_commit_for_code=subprocess.check_output(git_command_line,stderr=DEVNULL).rstrip().decode('utf-8')
         if re.compile("^[a-f,0-9]+$").search(git_commit_for_code):
             git_commit = git_commit_for_code
 
@@ -168,7 +174,7 @@ def set_parameter_value(workflow_settings,workflow_parameters,parameter_name,par
             entry=workflow_parameters[tool_id]
             set_parameter_value_from_multipart_name(parameter_names,parameter_value,entry)
 
-            print "setting parameter {"+tool_id+", "+tool_parameter.attrib['parameterName']+", "+str(parameter_value)+"}"
+            print("setting parameter {"+tool_id+", "+tool_parameter.attrib['parameterName']+", "+str(parameter_value)+"}")
 
 def find_workflow_uuid(galaxy_workflows,uuid):
     """
@@ -204,14 +210,14 @@ def split_fastq(file):
         filename=os.path.split(file)[1]
         (name,ext)=filename.split('.',1)
         if (ext == 'fastq.gz' or
-            ext == 'fastq' or 
+            ext == 'fastq' or
             ext == 'fq' or
             ext == 'fq.gz'):
             return (name,file)
         else:
             return (None,None)
     except ValueError:
-        return (None,None) 
+        return (None,None)
 
 def strip_end(text, suffix):
     """
@@ -284,8 +290,8 @@ def structure_fastqs(fastq_dir):
     # check data structure
     fastq_single={}
     fastq_paired={}
-    print "Structuring data in directory '"+fastq_dir+"' like:"
-    for name in sorted(fastq_files.iterkeys()):
+    print("Structuring data in directory '"+fastq_dir+"' like:")
+    for name in sorted(fastq_files.keys()):
         entry=fastq_files[name]
         single=entry.get('single')
         forward=entry.get('forward')
@@ -293,10 +299,10 @@ def structure_fastqs(fastq_dir):
 
         if single is not None:
             fastq_single[name]=entry
-            print name+': single {'+single+'}'
+            print(name+': single {'+single+'}')
         elif forward is not None and reverse is not None:
             fastq_paired[name]=entry
-            print name+': paired {forward: '+forward+', reverse: '+reverse+'}'
+            print(name+': paired {forward: '+forward+', reverse: '+reverse+'}')
         else:
             filename=''
             if (forward is None):
@@ -305,7 +311,7 @@ def structure_fastqs(fastq_dir):
                 filename=forward
 
             fastq_single[name]={'single':filename}
-            print name+': single {'+filename+'}'
+            print(name+': single {'+filename+'}')
 
     if fastq_single and fastq_paired:
         raise Exception("Error: mixture of single-end and paired-end data is currently unsupported")
@@ -342,10 +348,10 @@ def upload_fastqs_single(gi,history_id,fastq_single):
 
     single_elements=[]
 
-    for name in sorted(fastq_single.iterkeys()):
+    for name in sorted(fastq_single.keys()):
         fastq_file=fastq_single[name]['single']
-        
-        print 'Uploading '+fastq_file
+
+        print('Uploading '+fastq_file)
         file_galaxy=gi.tools.upload_file(fastq_file,history_id, file_type='fastqsanger')
         file_id=file_galaxy['outputs'][0]['id']
 
@@ -373,7 +379,7 @@ def upload_fastq_collection_single(gi,history_id,fastq_single):
 
     # construct single collection
     single_collection_name="single_datasets"
-    print "Building dataset collection named "+single_collection_name
+    print("Building dataset collection named "+single_collection_name)
     collection_response_single = gi.histories.create_dataset_collection(
         history_id=history_id,
         collection_description=dataset_collections.CollectionDescription(
@@ -402,9 +408,9 @@ def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_uplo
     fastq_library_ids={}
     fastq_history_ids={}
 
-    for name in fastqs_to_upload.iterkeys():
+    for name in fastqs_to_upload.keys():
         fastq_file=fastqs_to_upload[name]
-        print 'Uploading as link '+fastq_file
+        print('Uploading as link '+fastq_file)
 
         if (use_docker_fastq_dir):
             fastq_file=docker_fastq_dir+'/'+os.path.basename(fastq_file)
@@ -424,7 +430,7 @@ def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_uplo
     while (not finished_uploading):
         finished_uploading=True
 
-        for dataset in uploaded_ids: 
+        for dataset in uploaded_ids:
             state=gi.libraries.show_dataset(library_id,dataset)['state']
             if (state == 'error'):
                 raise Exception("Error uploading fastq file ("+fastq_library_ids[dataset]+", "+dataset+") to Galaxy Library "+library_id)
@@ -447,8 +453,8 @@ def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_uplo
         sys.stdout.write(str(len(uploaded_ids))+'.')
         sys.stdout.flush()
         time.sleep(2)
-    print 'done'
-    
+    print('done')
+
     return fastq_history_ids
 
 def upload_fastqs_library_paired(gi,history_id,library_id,fastq_paired):
@@ -466,18 +472,18 @@ def upload_fastqs_library_paired(gi,history_id,library_id,fastq_paired):
     fastqs_to_upload={}
     paired_elements=[]
 
-    for name in fastq_paired.iterkeys():
+    for name in fastq_paired.keys():
         entry=fastq_paired[name]
         forward=entry['forward']
         reverse=entry['reverse']
 
         fastqs_to_upload[name+'/forward']=forward
         fastqs_to_upload[name+'/reverse']=reverse
-        
+
     fastq_history_ids=upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload)
 
     # Convert to paired-end data structure
-    for name in sorted(fastq_paired.iterkeys()):
+    for name in sorted(fastq_paired.keys()):
         paired_elements.append(dataset_collections.CollectionElement(
             name=name,
             type='paired',
@@ -486,7 +492,7 @@ def upload_fastqs_library_paired(gi,history_id,library_id,fastq_paired):
                 dataset_collections.HistoryDatasetElement(name='reverse', id=fastq_history_ids[name+'/reverse'])
             ]
         ))
-    
+
     return paired_elements
 
 def upload_fastqs_library_single(gi,history_id,library_id,fastqs):
@@ -504,12 +510,12 @@ def upload_fastqs_library_single(gi,history_id,library_id,fastqs):
     fastqs_to_upload={}
     single_elements=[]
 
-    for name in fastqs.iterkeys():
+    for name in fastqs.keys():
         fastqs_to_upload[name]=fastqs[name]['single']
 
     fastq_history_ids=upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload)
 
-    for name in sorted(fastqs.iterkeys()):
+    for name in sorted(fastqs.keys()):
         single_elements.append(dataset_collections.HistoryDatasetElement(name=name,id=fastq_history_ids[name]))
 
     return single_elements
@@ -527,15 +533,15 @@ def upload_fastq_history_paired(gi,history_id,fastq_paired):
 
     paired_elements=[]
 
-    for name in sorted(fastq_paired.iterkeys()):
+    for name in sorted(fastq_paired.keys()):
         entry=fastq_paired[name]
         forward=entry['forward']
         reverse=entry['reverse']
-        
-        print 'Uploading as copy '+forward
+
+        print('Uploading as copy '+forward)
         forward_galaxy=gi.tools.upload_file(forward,history_id, file_type='fastqsanger')
         forward_id=forward_galaxy['outputs'][0]['id']
-        print 'Uploading as copy '+reverse
+        print('Uploading as copy '+reverse)
         reverse_galaxy=gi.tools.upload_file(reverse,history_id, file_type='fastqsanger')
         reverse_id=reverse_galaxy['outputs'][0]['id']
 
@@ -571,7 +577,7 @@ def upload_fastq_collection_paired(gi,history_id,fastq_paired):
 
     # construct paired collection
     paired_collection_name="paired_datasets"
-    print "Building dataset collection named "+paired_collection_name
+    print("Building dataset collection named "+paired_collection_name)
     collection_response_paired = gi.histories.create_dataset_collection(
         history_id=history_id,
         collection_description=dataset_collections.CollectionDescription(
@@ -659,7 +665,7 @@ def validate_workflow(gi,snvphyl_workflow,workflow_settings,workflow_parameters)
         workflow_params_json=json.loads(step['tool_state'])
         if (not verify_parameter_recursive(workflow_parameters[tool_id],workflow_params_json)):
             raise Exception("Error: parameter names to be set \n"+json.dumps(workflow_parameters[tool_id],indent=4,separators=(',', ': '))+"\n do not match those in selected SNVPhyl workflow \n"+json.dumps(workflow_params_json,indent=4,separators=(',', ': ')))
-    
+
 def verify_parameter_recursive(param,workflow_param):
     """
     Recursively checks parameters hash tables for equivalently named parameters.
@@ -720,8 +726,8 @@ def wait_for_internet_connection(port):
     sys.stdout.flush()
     while True:
         try:
-            response = urllib2.urlopen('http://localhost:'+str(port),timeout=5)
-            print ".finished.  Galaxy in Docker has (hopefully) started successfully."
+            response = urlopen('http://localhost:'+str(port),timeout=5)
+            print(".finished.  Galaxy in Docker has (hopefully) started successfully.")
             return
         except Exception:
             sys.stdout.write(".")
@@ -741,8 +747,8 @@ def write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_d
         try:
             file_pattern=output_name.attrib['fileName']
             file_name=str.replace(file_pattern,"${run_name}",run_name)
-    
-            print "Searching for dataset with name "+file_name
+
+            print("Searching for dataset with name "+file_name)
             file_datasets=gi.histories.show_matching_datasets(history_id,name_filter=file_name)
             if (len(file_datasets) == 0):
                 raise Exception("Error: no matching datasets with name "+file_name)
@@ -752,10 +758,10 @@ def write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_d
                 file_dataset=file_datasets[0]
                 local_file_path=output_dir+"/"+file_name
                 gi.datasets.download_dataset(file_dataset['id'],file_path=local_file_path,use_default_filename=False)
-        except Exception, e:
-            print >> sys.stderr, "Exception occured when downloading "+file_name+", skipping..."
-            print >> sys.stderr, repr(e) + ": " + str(e)
-            
+        except Exception as e:
+            print("Exception occured when downloading "+file_name+", skipping...", file=sys.stderr)
+            print(repr(e) + ": " + str(e), file=sys.stderr)
+
 def write_galaxy_provenance(gi,history_id,output_dir):
     """
     Writes provenance information from Galaxy to JSON output files.
@@ -835,21 +841,23 @@ def run_snvphyl_workflow_older_galaxy(gi,snvphyl_workflow_id,history_id,dataset_
         )
     except galaxy.client.ConnectionError as e:
         if ('Uncaught exception in exposed API method' in str(e)):
-            print "Got exception '"+str(e)+"' but this type is expected with older Galaxy API even when the workflow is executed.  Will continue assuming this is the case.\n"
+            print("Got exception '"+str(e)+"' but this type is expected with older Galaxy API even when the workflow is executed.  Will continue assuming this is the case.\n")
         else:
             raise e
 
-def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_version_settings,fastq_dir):
+def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,docker_other_options,snvphyl_version_settings,fastq_dir,copy_fastq_files_to_docker):
     """
     Deploys a Docker instance of Galaxy with the given snvphyl version workflow tools installed
 
     :param docker_port: Port to forward into Docker.
     :param with_docker_sudo: If true, prefix `sudo` to docker command.
     :param docker_cpus: Maximum number of CPUs docker should use.
+    :param docker_other_options: Set other docker options here.
     :param snvphyl_version_settings:  Settings for particular version of SNVPhyl to deploy.
     :param fastq_dir:  The input fastq direcory. If true, the directory will be mounted in docker under the directory in docker_fastq_dir.
+    :param copy_fastq_files_to_docker:  Whether or not to copy fastq files to docker.
 
-    :return: A pair of (url,key. url and key are for the Galaxy instance in Docker.  Blocks until Galaxy is up and running. 
+    :return: A pair of (url,key. url and key are for the Galaxy instance in Docker.  Blocks until Galaxy is up and running.
     """
 
     if ('dockerContainer' not in snvphyl_version_settings):
@@ -871,17 +879,20 @@ def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_versio
 
     docker_command_line.extend(['--detach','--publish',str(docker_port)+':80'])
 
-    if (fastq_dir is not None):
+    if (fastq_dir is not None and not copy_fastq_files_to_docker):
         fastq_dir_abs = os.path.abspath(fastq_dir)
         docker_command_line.extend(['--volume',str(fastq_dir_abs)+':'+docker_fastq_dir])
 
+    if (docker_other_options is not None):
+        docker_command_line.extend(docker_other_options.split())
+
     docker_command_line.append(docker_image)
 
-    print "\nDeploying Docker Container"
-    print "=========================="
-    print "Running '"+" ".join(docker_command_line)+"'"
-    docker_id=subprocess.check_output(docker_command_line).rstrip()
-    print "Docker id "+docker_id
+    print("\nDeploying Docker Container")
+    print("==========================")
+    print("Running '"+" ".join(docker_command_line)+"'")
+    docker_id=subprocess.check_output(docker_command_line).rstrip().decode('utf-8')
+    print("Docker id "+docker_id)
 
     wait_for_internet_connection(docker_port)
 
@@ -901,12 +912,12 @@ def undeploy_docker_with_id(docker_id, with_docker_sudo):
 
     docker_command_line.extend(['docker','rm','-f','-v',docker_id])
 
-    print "\nUndeploying and cleaning up Docker Container"
-    print "============================================="
-    print "Running '"+" ".join(docker_command_line)+"'"
+    print("\nUndeploying and cleaning up Docker Container")
+    print("=============================================")
+    print("Running '"+" ".join(docker_command_line)+"'")
     subprocess.call(docker_command_line)
 
-def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, docker_port, docker_cpus, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_files_as_links, fastq_history_name, reference_file, run_name, 
+def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, copy_fastq_files_to_docker, docker_port, docker_cpus, docker_other_options, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_files_as_links, fastq_history_name, reference_file, run_name,
          relative_snv_abundance, min_coverage, min_mean_mapping, repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method, wrapping around 'main_galaxy' to start up a docker image if needed.
@@ -930,14 +941,16 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
     upload_fastqs_as_links=fastq_files_as_links
 
     # if uploading as links, need to use aboslute path to files when sending to Galaxy
-    if (upload_fastqs_as_links):
+    if (upload_fastqs_as_links and copy_fastq_files_to_docker):
+        raise Exception("Error: cannot enable both --fastq-files-as-links and --copy-fastq-files-to-docker")
+    elif (upload_fastqs_as_links):
         fastq_dir=os.path.abspath(fastq_dir)
 
     if (deploy_docker and (galaxy_url or galaxy_api_key)):
         raise Exception("Error: cannot specify --galaxy-url and --galaxy-api-key along with --deploy-docker")
     elif (deploy_docker):
 
-        if (fastq_dir is not None):
+        if (not copy_fastq_files_to_docker and fastq_dir is not None):
             upload_fastqs_as_links=True
             use_docker_fastq_dir=True
 
@@ -953,8 +966,8 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
             os.mkdir(output_dir)
 
         docker_begin_time=time.time()
-        (url,key,docker_id)=handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,snvphyl_version_settings[snvphyl_version],fastq_dir)
-        print "Took %0.2f minutes to deploy docker" % ((time.time()-docker_begin_time)/60)
+        (url,key,docker_id)=handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,docker_other_options,snvphyl_version_settings[snvphyl_version],fastq_dir,copy_fastq_files_to_docker)
+        print("Took %0.2f minutes to deploy docker" % ((time.time()-docker_begin_time)/60))
 
         try:
             main_galaxy(url, key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, relative_snv_abundance, min_coverage, min_mean_mapping,
@@ -963,7 +976,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, do
             if (not keep_deployed_docker):
                 undeploy_docker_with_id(docker_id, with_docker_sudo)
             else:
-                print "Not undeploying docker.  Container id="+docker_id+", running on http://localhost:"+str(docker_port)+", with user=admin@galaxy.org, password=admin"
+                print("Not undeploying docker.  Container id="+docker_id+", running on http://localhost:"+str(docker_port)+", with user=admin@galaxy.org, password=admin")
 
     elif (galaxy_url and galaxy_api_key):
         if os.path.exists(output_dir):
@@ -993,8 +1006,8 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
 
     gi = galaxy.GalaxyInstance(url=galaxy_url, key=galaxy_api_key)
 
-    print "\nExamining input fastq files"
-    print "==========================="
+    print("\nExamining input fastq files")
+    print("===========================")
     if (fastq_dir is None and fastq_history_name is None):
         raise Exception("Error: must set either --fastq-dir or --fastq-history-name")
     elif ((fastq_dir is not None) and (fastq_history_name is not None)):
@@ -1024,8 +1037,8 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
 
     (workflow_settings,workflow_parameters)=load_snvphyl_settings(get_script_path()+"/../etc/snvphyl-settings.xml",snvphyl_version,workflow_type)
 
-    print "\nSet up workflow input"
-    print "====================="
+    print("\nSet up workflow input")
+    print("=====================")
     set_parameter_value(workflow_settings,workflow_parameters,'relative-snv-abundance',relative_snv_abundance)
     set_parameter_value(workflow_settings,workflow_parameters,'minimum-read-coverage',min_coverage)
     set_parameter_value(workflow_settings,workflow_parameters,'minimum-mean-mapping-quality',min_mean_mapping)
@@ -1033,7 +1046,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     set_parameter_value(workflow_settings,workflow_parameters,'repeat-minimum-pid',repeat_minimum_pid)
     set_parameter_value(workflow_settings,workflow_parameters,'filter-density-threshold',filter_density_threshold)
     set_parameter_value(workflow_settings,workflow_parameters,'filter-density-window-size',filter_density_window)
-    
+
     if workflow_id is None:
         snvphyl_workflow=find_workflow_uuid(gi.workflows.get_workflows(), workflow_settings.attrib['uuid'])
         if (snvphyl_workflow is None):
@@ -1051,37 +1064,37 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     today = str(datetime.date.today())
     history_name='snvphyl-'+os.path.basename(reference_name)+'-'+today+'-'+run_name
 
-    print "\nUpload files to Galaxy"
-    print "======================"
+    print("\nUpload files to Galaxy")
+    print("======================")
 
     # create history
-    print "Creating history in Galaxy name '"+history_name+"\'"
+    print("Creating history in Galaxy name '"+history_name+"\'")
     created_history=gi.histories.create_history(history_name)
     history_id=created_history['id']
 
     # upload reference
-    print "Uploading reference file "+reference_file
+    print("Uploading reference file "+reference_file)
     reference_galaxy=gi.tools.upload_file(reference_file, history_id)
     reference_id=reference_galaxy['outputs'][0]['id']
 
     if (fastq_dataset_collection is None):
         # fastq files not in history, must upload them
-        print "Uploading fastq files in history '"+history_name+"'"
+        print("Uploading fastq files in history '"+history_name+"'")
         if (is_paired_fastqs):
             fastq_id=upload_fastq_collection_paired(gi,history_id,fastq_paired)
         else:
             fastq_id=upload_fastq_collection_single(gi,history_id,fastq_single)
     else:
         # fastq files already in Galaxy, get id of collection
-        print "No need to upload files to Galaxy.  Using files from history named '"+fastq_history_name+"' and dataset collection '"+fastq_dataset_collection['name']+"'"
+        print("No need to upload files to Galaxy.  Using files from history named '"+fastq_history_name+"' and dataset collection '"+fastq_dataset_collection['name']+"'")
         fastq_id=fastq_dataset_collection['id']
 
     if invalid_positions_file != None:
-        print "Uploading invalid positions file "+invalid_positions_file
+        print("Uploading invalid positions file "+invalid_positions_file)
         invalid_positions_galaxy=gi.tools.upload_file(invalid_positions_file, history_id)
         invalid_positions_id=invalid_positions_galaxy['outputs'][0]['id']
 
-    print "Finished uploading data to history "+history_name
+    print("Finished uploading data to history "+history_name)
 
     if ('paired' in workflow_type):
         sequence_reads_name=workflow_settings.find('./inputs/sequenceReadsPaired').text
@@ -1146,19 +1159,19 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     settings_fh.write("upload_seconds=%i\n" % (upload_end_time - begin_time))
     settings_fh.flush()
 
-    print "\nRunning workflow"
-    print "================"
+    print("\nRunning workflow")
+    print("================")
 
-    print "Starting SNVPhyl version "+snvphyl_version+" type " + workflow_type + " workflow in history "+history_name
+    print("Starting SNVPhyl version "+snvphyl_version+" type " + workflow_type + " workflow in history "+history_name)
     if (use_newer_galaxy_api):
         run_snvphyl_workflow_newer_galaxy(gi,snvphyl_workflow['id'],history_id,dataset_map,workflow_parameters,run_name)
     else:
         run_snvphyl_workflow_older_galaxy(gi,snvphyl_workflow['id'],history_id,dataset_map,workflow_parameters,run_name)
 
-    print "Workflow has started running in history " + history_name + " on Galaxy "+galaxy_url+" at "+time.strftime("%Y-%m-%d %H:%M")
+    print("Workflow has started running in history " + history_name + " on Galaxy "+galaxy_url+" at "+time.strftime("%Y-%m-%d %H:%M"))
 
-    print "\nWaiting for workflow completion "
-    print "==============================="
+    print("\nWaiting for workflow completion ")
+    print("===============================")
 
     workflow_complete=False
     sys.stdout.write("percent complete (can initially decrease as more jobs are scheduled by Galaxy): 0")
@@ -1173,9 +1186,9 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
                 if ('state' in entry and entry['state'] == 'error'):
                     dataset_error_list.append(entry['name'])
 
-            print "\nError occured while running workflow, downloading existing output files\n"
+            print("\nError occured while running workflow, downloading existing output files\n")
             write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir)
-            print "\nWriting Galaxy provenance info\n"
+            print("\nWriting Galaxy provenance info\n")
             write_galaxy_provenance(gi,history_id,output_dir)
             raise Exception('error occured in workflow, history=['+history_name+'], problematic datasets=["'+'"; "'.join(dataset_error_list)+'"]')
         elif (status['state'] == 'ok'):
@@ -1185,13 +1198,13 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
             sys.stdout.flush()
             time.sleep(polling_time)
 
-    print "\nWorkflow finished at "+time.strftime("%Y-%m-%d %H:%M")
+    print("\nWorkflow finished at "+time.strftime("%Y-%m-%d %H:%M"))
 
-    print "\nGetting workflow outputs"
-    print "========================"
+    print("\nGetting workflow outputs")
+    print("========================")
     write_workflow_outputs(workflow_settings, run_name, gi, history_id, output_dir)
 
-    print "Getting provenance info from Galaxy"
+    print("Getting provenance info from Galaxy")
     write_galaxy_provenance(gi,history_id,output_dir)
 
     end_time=time.time()
@@ -1200,12 +1213,12 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     settings_fh.write("total_seconds=%i\n" % (end_time - begin_time))
     settings_fh.close()
 
-    print "\nFinished"
-    print "========"
-    print "Took %0.2f minutes" % ((end_time-begin_time)/60)
-    print "Galaxy history "+history_id+" on "+galaxy_url
-    print "Output in "+output_dir
-    
+    print("\nFinished")
+    print("========")
+    print("Took %0.2f minutes" % ((end_time-begin_time)/60))
+    print("Galaxy history "+history_id+" on "+galaxy_url)
+    print("Output in "+output_dir)
+
 
 ### MAIN ###
 
@@ -1213,7 +1226,8 @@ if __name__ == '__main__':
     settings_file=get_script_path()+"/../etc/snvphyl-settings.xml"
     snvphyl_version_settings=get_all_snvphyl_versions(settings_file)
     versions=snvphyl_version_settings.keys()
-    versions.sort(key=LooseVersion)
+
+    versions = sorted(versions, key=LooseVersion)
     current_version=versions.pop()
 
     available_versions = "SNVPhyl CLI: " + snvphyl_cli_version + "\nSNVPhyl CLI git commit: " + get_git_commit() + "\n\nAvailable SNVPhyl pipelines (--snvphyl-version):\n"
@@ -1230,7 +1244,7 @@ if __name__ == '__main__':
                "\n   Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, and by uploading the passed fastq files and reference genome (assumes workflow has been uploaded ahead of time).\n"+
                "\n  "+sys.argv[0]+" --galaxy-url http://galaxy --galaxy-api-key 1234abcd --fastq-history-name fastq-history --reference-file reference.fasta --output-dir output\n"+
                "\n    Runs SNVPhyl pipeline against the given Galaxy server, with the given API key, using structured fastq data (paired or single dataset collections) from a history with the given name.\n\n")
-    
+
     # Requires this argument to define Galaxy instance to execute pipeline within
     galaxy_api_group = parser.add_argument_group('Galaxy API (runs SNVPhyl in external Galaxy instance)')
     galaxy_api_group.add_argument('--galaxy-url', action="store", dest="galaxy_url",required=False, help='URL to the Galaxy instance to execute SNVPhyl')
@@ -1238,10 +1252,12 @@ if __name__ == '__main__':
 
     # Or this argument to deply a particular Galaxy instance with Docker on the given port
     docker_group = parser.add_argument_group('Docker (runs SNVPhyl in local Docker container)')
-    docker_group.add_argument('--deploy-docker', action="store_true", dest="deploy_docker", required=False, help='Deply an instance of Galaxy using Docker.')
+    docker_group.add_argument('--deploy-docker', action="store_true", dest="deploy_docker", required=False, help='Deploy an instance of Galaxy using Docker.')
+    docker_group.add_argument('--copy-fastq-files-to-docker', action="store_true", dest="copy_fastq_files_to_docker", required=False, help='Disables linking to fastq files in Galaxy after docker is deployed. This is useful if you encounter permissions issues with docker volumes, or wish to pass fastq files as symbolic links [False].')
     docker_group.add_argument('--keep-docker', action="store_true", dest="keep_deployed_docker", required=False, help='Keep docker image running after pipeline finishes.')
     docker_group.add_argument('--docker-port', action="store", dest="docker_port", default=48888, required=False, help='Port for deployment of Docker instance [48888].')
     docker_group.add_argument('--docker-cpus', action="store", type=int, dest="docker_cpus", default=-1, required=False, help='Limit on number of CPUs docker should use. The value -1 means use all CPUs available on the machine [-1]')
+    docker_group.add_argument('--docker-other-options', action="store", dest="docker_other_options", required=False, help='Other docker options can be passed here. These will be directly passed to the `docker` command.')
     docker_group.add_argument('--with-docker-sudo', action="store_true", dest="with_docker_sudo", required=False, help='Run `docker with `sudo` [False].')
 
     snvphyl_version_group = parser.add_argument_group('SNVPhyl Versions')

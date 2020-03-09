@@ -1,5 +1,11 @@
 # Changes
 
+## 1.4
+
+* Updated script to be compatible with Python 2 and 3 (thanks @fmaguire).
+* Added `--copy-fastq-files-to-docker` as a command-line option to disable linking to fastq files in Docker (in case of issues with links between Docker and host system).
+* Added `--docker-other-options` as an option to pass command-line options directly to `docker`.
+
 ## 1.3
 
 * Added `--docker-cpus` enabling control over the maximum number of cpus Docker will use when running SNVPhyl.
