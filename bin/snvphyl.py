@@ -918,7 +918,7 @@ def undeploy_docker_with_id(docker_id, with_docker_sudo):
     subprocess.call(docker_command_line)
 
 def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, copy_fastq_files_to_docker, docker_port, docker_cpus, docker_other_options, with_docker_sudo, keep_deployed_docker, snvphyl_version, workflow_id, fastq_dir, fastq_files_as_links, fastq_history_name, reference_file, run_name,
-         relative_snv_abundance, min_coverage, min_mean_mapping, repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
+         relative_snv_abundance, min_coverage, min_mean_mapping, repeat_minimum_length, repeat_minimum_pid, disable_filter_density, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method, wrapping around 'main_galaxy' to start up a docker image if needed.
 
@@ -971,7 +971,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, co
 
         try:
             main_galaxy(url, key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, relative_snv_abundance, min_coverage, min_mean_mapping,
-                repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir)
+                repeat_minimum_length, repeat_minimum_pid, disable_filter_density, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir)
         finally:
             if (not keep_deployed_docker):
                 undeploy_docker_with_id(docker_id, with_docker_sudo)
@@ -985,13 +985,13 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, co
             os.mkdir(output_dir)
 
         main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, relative_snv_abundance, min_coverage, min_mean_mapping,
-            repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir)
+            repeat_minimum_length, repeat_minimum_pid, disable_filter_density, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir)
     else:
         raise Exception("Error: must specify both --galaxy-url and --galaxy-api-key or --deploy-docker")
 
 
 def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_dir, fastq_history_name, reference_file, run_name, relative_snv_abundance, min_coverage, min_mean_mapping,
-	repeat_minimum_length, repeat_minimum_pid, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
+	repeat_minimum_length, repeat_minimum_pid, disable_filter_density, filter_density_window, filter_density_threshold, invalid_positions_file, output_dir):
     """
     The main method to interact with Galaxy and execute SNVPhyl.
 
@@ -1044,6 +1044,12 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
     set_parameter_value(workflow_settings,workflow_parameters,'minimum-mean-mapping-quality',min_mean_mapping)
     set_parameter_value(workflow_settings,workflow_parameters,'repeat-minimum-length',repeat_minimum_length)
     set_parameter_value(workflow_settings,workflow_parameters,'repeat-minimum-pid',repeat_minimum_pid)
+    if LooseVersion(snvphyl_version) >= LooseVersion('1.2.0'):
+        set_parameter_value(workflow_settings,workflow_parameters,'use-filter-density', not disable_filter_density)
+    elif disable_filter_density:
+        print("SNVPhyl version not 1.2.0, but --disable-filter-density set, so readjusting threshold [2] and window size [1] to disable")
+        filter_density_threshold = 2
+        filter_density_window = 1
     set_parameter_value(workflow_settings,workflow_parameters,'filter-density-threshold',filter_density_threshold)
     set_parameter_value(workflow_settings,workflow_parameters,'filter-density-window-size',filter_density_window)
 
@@ -1285,6 +1291,7 @@ if __name__ == '__main__':
     parameter_group.add_argument('--min-mean-mapping', action="store", dest="min_mean_mapping", default=30, required=False, help='Minimum mean mapping quality for reads supporting a variant [30]')
     parameter_group.add_argument('--repeat-minimum-length', action="store", dest="repeat_minimum_length", default=150, required=False, help='Minimum length of repeat regions to remove [150]')
     parameter_group.add_argument('--repeat-minimum-pid', action="store", dest="repeat_minimum_pid", default=90, required=False, help='Minimum percent identity to identify repeat regions [90]')
+    parameter_group.add_argument('--disable-filter-density', action="store", dest="disable_filter_density", default=False, required=False, help='Disable SNV density filtering [False]')
     parameter_group.add_argument('--filter-density-window', action="store", dest="filter_density_window", default=500, required=False, help='Window size for identifying high-density SNV regions [500]')
     parameter_group.add_argument('--filter-density-threshold', action="store", dest="filter_density_threshold", default=2, required=False, help='SNV threshold for identifying high-density SNV regions [2]')
 

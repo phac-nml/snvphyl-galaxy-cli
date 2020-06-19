@@ -1,5 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <snvphylWorkflows>
+	<snvphylWorkflow version="1.2.0" type="paired-end" uuid="a37c046d-db3c-4772-84ba-0825c0963ed5" dockerContainer="snvphyl/1.2.0">
+		<inputs>
+			<sequenceReadsPaired>sequence_reads_paired</sequenceReadsPaired>
+			<reference>reference</reference>
+        	</inputs>
+		<parameters>
+			<parameter name="relative-snv-abundance" defaultValue="0.75">
+				<toolParameter
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.2+galaxy1"
+					parameterName="snv_abundance_ratio" />
+			</parameter>
+			<parameter name="minimum-mean-mapping-quality" defaultValue="30">
+				<toolParameter
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.2+galaxy1"
+					parameterName="mean_mapping" />
+			</parameter>
+			<parameter name="minimum-read-coverage" defaultValue="10">
+				<toolParameter
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.2+galaxy1"
+					parameterName="coverage" />
+				<toolParameter
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/verify_map/verify_map/1.8.2"
+					parameterName="mindepth" />
+			</parameter>
+			<parameter name="repeat-minimum-length" defaultValue="150">
+				<toolParameter
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2"
+					parameterName="length" />
+			</parameter>
+			<parameter name="repeat-minimum-pid" defaultValue="90">
+				<toolParameter
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2"
+					parameterName="pid" />
+			</parameter>
+			<parameter name="use-density-filter" defaultValue="true">
+				<toolParameter
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.2+galaxy1"
+					parameterName="use_density_filter" />
+			</parameter>
+			<parameter name="filter-density-window-size" defaultValue="500">
+				<toolParameter
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.2+galaxy1"
+					parameterName="window_size" />
+			</parameter>
+			<parameter name="filter-density-threshold" defaultValue="2">
+				<toolParameter
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.2+galaxy1"
+					parameterName="threshold" />
+			</parameter>
+		</parameters>
+		<outputs>
+			<output name="filter-stats" fileName="filterStats.txt" />
+			<output name="mapping-quality" fileName="mappingQuality.txt" />
+			<output name="tree" fileName="phylogeneticTree.newick" />
+			<output name="alignment" fileName="snvAlignment.phy" />
+			<output name="matrix" fileName="snvMatrix.tsv" />
+			<output name="table" fileName="snvTable.tsv" />
+			<output name="core" fileName="vcf2core.tsv" />
+		</outputs>
+	</snvphylWorkflow>
 	<snvphylWorkflow version="1.0.1" type="single-end-invalid-positions" uuid="c3fed8de-0887-438d-b63c-7b6a30020652" dockerContainer="phacnml/snvphyl-galaxy-1.0.1:1.0.1b">
 		<inputs>
 			<sequenceReadsSingle>sequence_reads_single</sequenceReadsSingle>
