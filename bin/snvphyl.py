@@ -1154,6 +1154,9 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
         settings_fh.write("filter_density_window=%s\n" % filter_density_window)
         settings_fh.write("filter_density_threshold=%s\n" % filter_density_threshold)
 
+        if LooseVersion(snvphyl_version) >= LooseVersion('1.2.0'):
+            settings_fh.write("disable_filter_density=%" % disable_filter_density)
+
     settings_fh.write("reference_file=%s\n" % reference_file)
     settings_fh.write("galaxy_url=%s\n" % galaxy_url)
     settings_fh.write("workflow_id=%s\n" % snvphyl_workflow['id'])
