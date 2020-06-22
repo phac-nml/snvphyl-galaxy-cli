@@ -1291,7 +1291,7 @@ if __name__ == '__main__':
     parameter_group.add_argument('--min-mean-mapping', action="store", dest="min_mean_mapping", default=30, required=False, help='Minimum mean mapping quality for reads supporting a variant [30]')
     parameter_group.add_argument('--repeat-minimum-length', action="store", dest="repeat_minimum_length", default=150, required=False, help='Minimum length of repeat regions to remove [150]')
     parameter_group.add_argument('--repeat-minimum-pid', action="store", dest="repeat_minimum_pid", default=90, required=False, help='Minimum percent identity to identify repeat regions [90]')
-    parameter_group.add_argument('--disable-filter-density', action="store", dest="disable_filter_density", default=False, required=False, help='Disable SNV density filtering [False]')
+    parameter_group.add_argument('--disable-filter-density', action="store_true", dest="disable_filter_density", default=False, required=False, help='Disable SNV density filtering')
     parameter_group.add_argument('--filter-density-window', action="store", dest="filter_density_window", default=500, required=False, help='Window size for identifying high-density SNV regions [500]')
     parameter_group.add_argument('--filter-density-threshold', action="store", dest="filter_density_threshold", default=2, required=False, help='SNV threshold for identifying high-density SNV regions [2]')
 
