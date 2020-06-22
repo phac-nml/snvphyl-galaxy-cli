@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <snvphylWorkflows>
-	<snvphylWorkflow version="1.2.0" type="paired-end" uuid="a37c046d-db3c-4772-84ba-0825c0963ed5" dockerContainer="snvphyl/1.2.0">
+	<snvphylWorkflow version="1.2.0" type="paired-end" uuid="dc0d6df0-f39e-40ca-a8cd-2d0718d5519d" dockerContainer="snvphyl/1.2.0">
 		<inputs>
 			<sequenceReadsPaired>sequence_reads_paired</sequenceReadsPaired>
 			<reference>reference</reference>
@@ -21,17 +21,17 @@
 					toolId="phac5021054.cscscience.ca:9009/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.2+galaxy1"
 					parameterName="coverage" />
 				<toolParameter
-					toolId="phac5021054.cscscience.ca:9009/repos/nml/verify_map/verify_map/1.8.2"
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/verify_map/verify_map/1.8.2+galaxy1"
 					parameterName="mindepth" />
 			</parameter>
 			<parameter name="repeat-minimum-length" defaultValue="150">
 				<toolParameter
-					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2"
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2+galaxy1"
 					parameterName="length" />
 			</parameter>
 			<parameter name="repeat-minimum-pid" defaultValue="90">
 				<toolParameter
-					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2"
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2+galaxy1"
 					parameterName="pid" />
 			</parameter>
 			<parameter name="use-density-filter" defaultValue="true">
@@ -60,7 +60,7 @@
 			<output name="core" fileName="vcf2core.tsv" />
 		</outputs>
 	</snvphylWorkflow>
-	<snvphylWorkflow version="1.2.0" type="paired-end-invalid-positions" uuid="d2e940f8-f56c-4e4d-96fc-a3583f931c68" dockerContainer="snvphyl/1.2.0">
+	<snvphylWorkflow version="1.2.0" type="paired-end-invalid-positions" uuid="1f65a784-6a89-4726-8243-d09379f5d244" dockerContainer="snvphyl/1.2.0">
 		<inputs>
 			<sequenceReadsPaired>sequence_reads_paired</sequenceReadsPaired>
 			<invalidPositions>invalid_positions</invalidPositions>
@@ -82,17 +82,17 @@
 					toolId="phac5021054.cscscience.ca:9009/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.2+galaxy1"
 					parameterName="coverage" />
 				<toolParameter
-					toolId="phac5021054.cscscience.ca:9009/repos/nml/verify_map/verify_map/1.8.2"
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/verify_map/verify_map/1.8.2+galaxy1"
 					parameterName="mindepth" />
 			</parameter>
 			<parameter name="repeat-minimum-length" defaultValue="150">
 				<toolParameter
-					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2"
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2+galaxy1"
 					parameterName="length" />
 			</parameter>
 			<parameter name="repeat-minimum-pid" defaultValue="90">
 				<toolParameter
-					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2"
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2+galaxy1"
 					parameterName="pid" />
 			</parameter>
 			<parameter name="use-density-filter" defaultValue="true">
@@ -121,7 +121,7 @@
 			<output name="core" fileName="vcf2core.tsv" />
 		</outputs>
 	</snvphylWorkflow>
-	<snvphylWorkflow version="1.2.0" type="single-end" uuid="f7c11b82-1e62-4166-a94a-f1d686a7103d" dockerContainer="snvphyl/1.2.0">
+	<snvphylWorkflow version="1.2.0" type="single-end" uuid="7ac59b9e-04e7-46a9-b47a-98d3c571fcf9" dockerContainer="snvphyl/1.2.0">
 		<inputs>
 			<sequenceReadsSingle>sequence_reads_single</sequenceReadsSingle>
 			<reference>reference</reference>
@@ -142,17 +142,17 @@
 					toolId="phac5021054.cscscience.ca:9009/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.2+galaxy1"
 					parameterName="coverage" />
 				<toolParameter
-					toolId="phac5021054.cscscience.ca:9009/repos/nml/verify_map/verify_map/1.8.2"
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/verify_map/verify_map/1.8.2+galaxy1"
 					parameterName="mindepth" />
 			</parameter>
 			<parameter name="repeat-minimum-length" defaultValue="150">
 				<toolParameter
-					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2"
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2+galaxy1"
 					parameterName="length" />
 			</parameter>
 			<parameter name="repeat-minimum-pid" defaultValue="90">
 				<toolParameter
-					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2"
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2+galaxy1"
 					parameterName="pid" />
 			</parameter>
 			<parameter name="use-density-filter" defaultValue="true">
@@ -181,7 +181,7 @@
 			<output name="core" fileName="vcf2core.tsv" />
 		</outputs>
 	</snvphylWorkflow>
-	<snvphylWorkflow version="1.2.0" type="single-end-invalid-positions" uuid="76890236-6f80-49e2-b090-b451d16c2f4c" dockerContainer="snvphyl/1.2.0">
+	<snvphylWorkflow version="1.2.0" type="single-end-invalid-positions" uuid="1090dfa8-abc1-4207-92b0-7f680a7efd8f" dockerContainer="snvphyl/1.2.0">
 		<inputs>
 			<sequenceReadsSingle>sequence_reads_single</sequenceReadsSingle>
 			<invalidPositions>invalid_positions</invalidPositions>
@@ -203,17 +203,17 @@
 					toolId="phac5021054.cscscience.ca:9009/repos/nml/consolidate_vcfs/consolidate_vcfs/1.8.2+galaxy1"
 					parameterName="coverage" />
 				<toolParameter
-					toolId="phac5021054.cscscience.ca:9009/repos/nml/verify_map/verify_map/1.8.2"
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/verify_map/verify_map/1.8.2+galaxy1"
 					parameterName="mindepth" />
 			</parameter>
 			<parameter name="repeat-minimum-length" defaultValue="150">
 				<toolParameter
-					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2"
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2+galaxy1"
 					parameterName="length" />
 			</parameter>
 			<parameter name="repeat-minimum-pid" defaultValue="90">
 				<toolParameter
-					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2"
+					toolId="phac5021054.cscscience.ca:9009/repos/nml/find_repeats/findrepeat/1.8.2+galaxy1"
 					parameterName="pid" />
 			</parameter>
 			<parameter name="use-density-filter" defaultValue="true">
