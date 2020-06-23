@@ -352,7 +352,7 @@ def upload_fastqs_single(gi,history_id,fastq_single):
         fastq_file=fastq_single[name]['single']
 
         print('Uploading '+fastq_file)
-        file_galaxy=gi.tools.upload_file(fastq_file,history_id, file_type='fastqsanger')
+        file_galaxy=gi.tools.upload_file(fastq_file,history_id, file_type=get_sequence_file_type(fastq_file))
         file_id=file_galaxy['outputs'][0]['id']
 
         single_elements.append(dataset_collections.HistoryDatasetElement(name=name,id=file_id))
@@ -391,6 +391,21 @@ def upload_fastq_collection_single(gi,history_id,fastq_single):
 
     return collection_response_single['id']
 
+def get_sequence_file_type(file):
+    """
+    Gets the sequence file type (fastq/fastq.gz).
+
+    :param file: The file.
+
+    :return: The Galaxy file type (fastqsanger/fastqsanger.gz).
+    """
+    if file.endswith('.fastq'):
+        return 'fastqsanger'
+    elif file.endswith('.fastq.gz'):
+        return 'fastqsanger.gz'
+    else:
+        raise Exception("Error: no Galaxy file type for '%s'" % (file))
+
 def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload):
     """
     Uploads the given fastq files to a Galaxy History via a Dataset Library.
@@ -415,7 +430,7 @@ def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_uplo
         if (use_docker_fastq_dir):
             fastq_file=docker_fastq_dir+'/'+os.path.basename(fastq_file)
 
-        response=gi.libraries.upload_from_galaxy_filesystem(library_id, fastq_file, file_type='fastqsanger', link_data_only='link_to_files')
+        response=gi.libraries.upload_from_galaxy_filesystem(library_id, fastq_file, file_type=get_sequence_file_type(fastq_file), link_data_only='link_to_files')
         fastq_library_id=response[0]['id']
 
         fastq_library_ids[fastq_library_id] = name
@@ -539,10 +554,10 @@ def upload_fastq_history_paired(gi,history_id,fastq_paired):
         reverse=entry['reverse']
 
         print('Uploading as copy '+forward)
-        forward_galaxy=gi.tools.upload_file(forward,history_id, file_type='fastqsanger')
+        forward_galaxy=gi.tools.upload_file(forward,history_id, file_type=get_sequece_file_type(forward))
         forward_id=forward_galaxy['outputs'][0]['id']
         print('Uploading as copy '+reverse)
-        reverse_galaxy=gi.tools.upload_file(reverse,history_id, file_type='fastqsanger')
+        reverse_galaxy=gi.tools.upload_file(reverse,history_id, file_type=get_sequence_file_type(reverse))
         reverse_id=reverse_galaxy['outputs'][0]['id']
 
         paired_elements.append(dataset_collections.CollectionElement(
