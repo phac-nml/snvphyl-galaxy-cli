@@ -196,6 +196,22 @@ def find_workflow_uuid(galaxy_workflows,uuid):
                 workflow=w
     return workflow
 
+def get_sequence_file_type(file):
+    """
+    Gets the sequence file type (fastq/fastq.gz).
+
+    :param file: The file.
+
+    :return: The Galaxy file type (fastqsanger/fastqsanger.gz).
+    """
+    if file.endswith('.fastq') or file.endswith('.fq'):
+        return 'fastqsanger'
+    elif file.endswith('.fastq.gz') or file.endswith('.fq.gz'):
+        return 'fastqsanger.gz'
+    else:
+        raise Exception("Error: no Galaxy file type for '%s'" % (file))
+
+
 def split_fastq(file):
     """
     Splits a fastq file name into the file name part, and extension part.
@@ -391,21 +407,6 @@ def upload_fastq_collection_single(gi,history_id,fastq_single):
 
     return collection_response_single['id']
 
-def get_sequence_file_type(file):
-    """
-    Gets the sequence file type (fastq/fastq.gz).
-
-    :param file: The file.
-
-    :return: The Galaxy file type (fastqsanger/fastqsanger.gz).
-    """
-    if file.endswith('.fastq'):
-        return 'fastqsanger'
-    elif file.endswith('.fastq.gz'):
-        return 'fastqsanger.gz'
-    else:
-        raise Exception("Error: no Galaxy file type for '%s'" % (file))
-
 def upload_fastqs_to_history_via_library(gi,history_id,library_id,fastqs_to_upload):
     """
     Uploads the given fastq files to a Galaxy History via a Dataset Library.
@@ -554,7 +555,7 @@ def upload_fastq_history_paired(gi,history_id,fastq_paired):
         reverse=entry['reverse']
 
         print('Uploading as copy '+forward)
-        forward_galaxy=gi.tools.upload_file(forward,history_id, file_type=get_sequece_file_type(forward))
+        forward_galaxy=gi.tools.upload_file(forward,history_id, file_type=get_sequence_file_type(forward))
         forward_id=forward_galaxy['outputs'][0]['id']
         print('Uploading as copy '+reverse)
         reverse_galaxy=gi.tools.upload_file(reverse,history_id, file_type=get_sequence_file_type(reverse))
@@ -1218,7 +1219,7 @@ def main_galaxy(galaxy_url, galaxy_api_key, snvphyl_version, workflow_id, fastq_
         elif (status['state'] == 'ok'):
             workflow_complete=True
         else:
-            sys.stdout.write("..."+str(status['percent_complete']))
+            sys.stdout.write("...%0.1f%%" % status['percent_complete'])
             sys.stdout.flush()
             time.sleep(polling_time)
 
