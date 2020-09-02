@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <snvphylWorkflows>
-	<snvphylWorkflow version="1.2.0" type="paired-end" uuid="e4b2b988-d9e3-4424-979b-6745e27fd5a5" dockerContainer="snvphyl/1.2.0">
+	<snvphylWorkflow version="1.2.1" type="paired-end" uuid="d1d149eb-e4c4-436a-b6e6-94357b234728" dockerContainer="snvphyl/1.2.1">
 		<inputs>
 			<sequenceReadsPaired>sequence_reads_paired</sequenceReadsPaired>
 			<reference>reference</reference>
@@ -61,7 +61,7 @@
 			<output name="core" fileName="vcf2core.tsv" />
 		</outputs>
 	</snvphylWorkflow>
-	<snvphylWorkflow version="1.2.0" type="paired-end-invalid-positions" uuid="c808c572-e76a-4044-a1c2-65db9dafd7fa" dockerContainer="snvphyl/1.2.0">
+	<snvphylWorkflow version="1.2.1" type="paired-end-invalid-positions" uuid="099e021c-13c5-4646-a856-d69a0ee48300" dockerContainer="snvphyl/1.2.1">
 		<inputs>
 			<sequenceReadsPaired>sequence_reads_paired</sequenceReadsPaired>
 			<invalidPositions>invalid_positions</invalidPositions>
@@ -122,7 +122,7 @@
 			<output name="core" fileName="vcf2core.tsv" />
 		</outputs>
 	</snvphylWorkflow>
-	<snvphylWorkflow version="1.2.0" type="single-end" uuid="674e237e-6d75-49c2-b6b6-4b1929325355" dockerContainer="snvphyl/1.2.0">
+	<snvphylWorkflow version="1.2.1" type="single-end" uuid="673448de-09a4-40b5-b000-9b42e661cade" dockerContainer="snvphyl/1.2.1">
 		<inputs>
 			<sequenceReadsSingle>sequence_reads_single</sequenceReadsSingle>
 			<reference>reference</reference>
@@ -182,7 +182,7 @@
 			<output name="core" fileName="vcf2core.tsv" />
 		</outputs>
 	</snvphylWorkflow>
-	<snvphylWorkflow version="1.2.0" type="single-end-invalid-positions" uuid="78078532-1506-44f4-a268-598a6c725eed" dockerContainer="snvphyl/1.2.0">
+	<snvphylWorkflow version="1.2.1" type="single-end-invalid-positions" uuid="7ac99fe3-688a-4685-908e-b08706bf2ede" dockerContainer="snvphyl/1.2.1">
 		<inputs>
 			<sequenceReadsSingle>sequence_reads_single</sequenceReadsSingle>
 			<invalidPositions>invalid_positions</invalidPositions>
