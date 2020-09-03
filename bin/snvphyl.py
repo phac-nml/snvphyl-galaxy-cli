@@ -873,7 +873,7 @@ def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,docker_other_o
     :param fastq_dir:  The input fastq direcory. If true, the directory will be mounted in docker under the directory in docker_fastq_dir.
     :param copy_fastq_files_to_docker:  Whether or not to copy fastq files to docker.
 
-    :return: A pair of (url,key. url and key are for the Galaxy instance in Docker.  Blocks until Galaxy is up and running.
+    :return: A pair of (url,key). url and key are for the Galaxy instance in Docker.  Blocks until Galaxy is up and running.
     """
 
     if ('dockerContainer' not in snvphyl_version_settings):
@@ -911,8 +911,13 @@ def handle_deploy_docker(docker_port,with_docker_sudo,docker_cpus,docker_other_o
     print("Docker id "+docker_id)
 
     wait_for_internet_connection(docker_port)
+ 
+    if LooseVersion(snvphyl_version_settings['version']) >= LooseVersion('1.2.0'):
+        api_key = 'fakekey'
+    else:
+        api_key = 'admin'
 
-    return ("http://localhost:"+str(docker_port),'admin',docker_id)
+    return ("http://localhost:"+str(docker_port),api_key,docker_id)
 
 def undeploy_docker_with_id(docker_id, with_docker_sudo):
     """
@@ -992,7 +997,7 @@ def main(snvphyl_version_settings, galaxy_url, galaxy_api_key, deploy_docker, co
             if (not keep_deployed_docker):
                 undeploy_docker_with_id(docker_id, with_docker_sudo)
             else:
-                print("Not undeploying docker.  Container id="+docker_id+", running on http://localhost:"+str(docker_port)+", with user=admin@galaxy.org, password=admin")
+                print("Not undeploying docker.  Container id="+docker_id+", running on http://localhost:"+str(docker_port)+", with user=admin@galaxy.org, password=admin or password=password")
 
     elif (galaxy_url and galaxy_api_key):
         if os.path.exists(output_dir):
