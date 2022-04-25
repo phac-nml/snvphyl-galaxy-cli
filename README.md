@@ -2,6 +2,8 @@
 
 This project contains a command-line interface for the [SNVPhyl][] Galaxy pipeline.  This enables execution, via a command-line script, an instance of the SNVPhyl pipeline installed in either a previously established [Galaxy][] instance, or a local [Docker][] container based on the [Galaxy Docker][] project.
 
+*As an alternative, there exists a **Nextflow** version of SNVPhyl developed by **Jill Hagey** available at <https://github.com/DHQP/SNVPhyl_Nextflow>.* 
+
 # Installation
 
 The SNVPhyl CLI requires [Python][] along with some dependency modules to be installed.  To install these please run:
